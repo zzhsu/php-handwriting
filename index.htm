@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>Ajax手写识别</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- <meta http-equiv="X-UA-Compatible" content="chrome=1"> -->
+        <link rel=stylesheet href="tomoe.css" media=all>
+        <script type="text/javascript" src="json2.js"></script>
+        <script type="text/javascript" charset="UTF-8" src="tomoe.js"></script>
+        <script>
+        mode = 1;
+            function showdebug(str)
+            {
+                var debug = document.getElementById("debug");
+                debug.innerHTML += str +"<br>";
+            }
+
+            function sendData()
+            {
+                tomoe.sendStroke();
+            }
+        </script>
+    </head>
+    <body>
+        <table class="tomoe-table">
+            <tr>
+                <td valign="top">
+                    <div id="tomoe-canvas" class="tomoe-canvas">
+                        <span id="tomoe-point" class="tomoe-dot"></span>
+                    </div>
+                </td>
+                <td><div id="tomoe-result" class="tomoe-result"></div></td>
+            </tr>
+        </table>
+        <table class="tomoe-table">
+            <tr>
+                <td><input id="tomoe-text" type=text size=40 />
+                    <input id="tomoe-undo-button" type="button" value="撤销" />
+                    <input id="tomoe-clear-button" type="button" value="清除" /><br />
+                   <!-- <input id="tomoe-read-button" type="button" value="read" /> -->
+                   <input id="debug-button" type="button" value="提交数据（测试用）" onclick="sendData()" />
+                </td></tr>
+        </table>
+        <div id="tomoe-msg"></div>
+        <div id="debug"></div>
+    </body>
+</html>
