@@ -1,0 +1,92 @@
+﻿.tomoe-canvas {
+    width: 300px;
+    height: 300px;
+    margin: 0px;
+    background-color: aliceblue;
+    border-collapse: collapse;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888;
+}
+
+.tomoe-button {
+    margin-left: 4px;
+    margin-top: 8px;
+}
+
+.tomoe-dot {
+    position:absolute;
+    background:#000;
+    width:4px;
+    height:4px;
+    z-index:32768;
+    overflow: hidden;
+}
+
+.tomoe-dot-train {
+    position:absolute;
+    background:#f00;
+    width:4px;
+    height:4px;
+    z-index:32768;
+    overflow: hidden;
+}
+
+.tomoe-table {
+    margin-left: 20px;
+    border-width: 0px;
+}
+
+.tomoe-table td{
+  vertical-align: top;
+}
+
+.tomoe-sr, .tomoe-srs {  cursor : pointer; }
+.tomoe-sr  { background-color : seashell; color : #000; }
+.tomoe-srs { background-color : #36c; color : seashell; cursor : pointer; }
+
+.tomoe-prob {
+    margin-left: 20px;
+    line-height: 20px;
+    font-size: smaller;
+    color: darkgreen;
+}
+
+.tomoe-char {
+    width: 30px;
+    margin-left: 10px;
+    font-size: 18px;
+    line-height: 20px;
+    float:left;
+}
+
+.tomoe-result {
+    display: none;
+    float:right;
+    width: 140px;
+    height: 280px;
+    margin-left: 2px;
+    padding: 10px;
+    padding-left: 5px;
+    background-color: seashell;
+    border-collapse: collapse;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888;
+}
+
+.tomoe-ul li {
+    display: inline;
+}
+
+.tomoe-list{
+    width:300px;
+    border:1px   solid   #888;
+    margin:0px;
+    padding:0px;
+}
+
+.tomoe-list li{
+    float:left; 
+    width:50%;
+}

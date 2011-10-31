@@ -1,0 +1,997 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>Ajax手写识别</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- <meta http-equiv="X-UA-Compatible" content="chrome=1"> -->
+        <link rel=stylesheet href="tomoe.css" media=all>
+        <script type="text/javascript" src="json2.js"></script>
+        <!-- <script type="text/javascript" charset="UTF-8" src="tomoe.js"> -->
+        <script type="text/javascript">
+            /*
+             * Ajax-based hand written recognition
+             *
+             * Copyright (C) 2005-2007 Taku Kudo <taku@chasen.org>
+             * This is free software with ABSOLUTELY NO WARRANTY.
+             *
+             * This program is free software; you can redistribute it and/or modify
+             * it under the terms of the GNU General Public License as published by
+             * the Free Software Foundation; either version 2 of the License, or
+             * (at your option) any later version.
+             *
+             * This program is distributed in the hope that it will be useful,
+             * but WITHOUT ANY WARRANTY; without even the implied warranty of
+             * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+             * GNU General Public License for more details.
+             *
+             * You should have received a copy of the GNU General Public License
+             * along with this program; if not, write to the Free Software
+             * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+             * 02111-1307, USA
+             *
+             */
+
+            //类声明
+            var TYPE_UNKNOWN = -1;
+            var TYPE_RECOGNIZE = 1;
+            var TYPE_LEARN = 2;
+            var TYPE_GET_CHARS = 3;
+            var TYPE_GET_WRITINGS = 4;
+            var TYPE_DEL_WRITINGS = 5;
+            var MSG_OK = 1;
+
+            var mode = TYPE_RECOGNIZE;
+            var tomoe = null;
+            var intervalProcess = null;
+
+            function startCheckSubmitPool()
+            {
+                if(intervalProcess == null)
+                {
+                    //每秒钟检查提交池
+                    intervalProcess = setInterval(checkSubmitPool, 1000);
+                }
+            }
+
+            function stopCheckSubmitPool()
+            {
+                clearInterval(intervalProcess);
+            }
+
+            function checkSubmitPool()
+            {
+                if(tomoe)
+                {
+                    if(tomoe.needSubmit == true)
+                    {
+                        if(tomoe.isWriting == false)
+                        {
+                            tomoe.sendStroke();
+                        }
+                    }
+                    else
+                    {
+                        stopCheckSubmitPool();
+                    }
+                }
+            }
+
+            function Character(strokes)
+            {
+                this.s = new Array();
+                this.width = 0;
+                this.height = 0;
+                this.left = 0;
+                this.top = 0;
+
+                if (typeof(s) !== "undefined")
+                {
+                    this.s = this.s.concat(strokes);
+                }
+            }
+
+            function Stroke(points)
+            {
+                this.p = new Array();
+
+                if (typeof(p) !== "undefined")
+                {
+                    this.p = this.p.concat(points);
+                }
+            }
+
+            function Point(x, y)
+            {
+                this.x = -1;
+                this.y = -1;
+
+                if (typeof(x) !== "undefined")
+                {
+                    this.x = x;
+                    this.y = y;
+                }
+            }
+            //end 类声明
+
+            function addPoint(stroke, point)
+            {
+                stroke.p.push(point);
+            }
+
+            function addPointXY(stroke, x, y)
+            {
+                stroke.p.push(new Point(x, y));
+            }
+
+            function addStroke(writing, stroke)
+            {
+                writing.s.push(stroke);
+            }
+
+            function addStrokeXY(writing, x, y)
+            {
+                var stroke = new Stroke();
+                addPoint(stroke, x, y);
+                addStroke(writing, stroke);
+            }
+
+
+            function getPosition(e)
+            {
+                evt = (e) ? e : ((event) ? event : null);
+                var left = 0;
+                var top = 0;
+                var scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft || 0;
+                var scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+
+                if (evt.pageX)
+                {
+                    left = evt.pageX;
+                    top = evt.pageY;
+                }
+                else
+                {
+                    left = evt.clientX + scrollLeft;
+                    top = evt.clientY + scrollTop;
+                }
+
+                return {
+                    x: left,
+                    y: top
+                };
+            }
+
+            function createXmlHttp()
+            {
+                var xmlhttp = false;
+
+                try
+                {
+                    xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+                catch (e)
+                {
+                    try
+                    {
+                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                    }
+                    catch (E)
+                    {
+                        xmlhttp = false;
+                    }
+                }
+                if (!xmlhttp && typeof XMLHttpRequest != 'undefined')
+                {
+                    xmlhttp = new XMLHttpRequest();
+                }
+
+                return xmlhttp;
+            }
+
+            TOMOE.prototype.checkXmlHttp = function()
+            {
+                if (! this.xmlhttp)
+                {
+                    this.xmlhttp = createXmlHttp();
+                }
+                if (! this.xmlhttp || this.xmlhttp.readyState == 1 ||
+                    this.xmlhttp.readyState == 2 || this.xmlhttp.readyState == 3)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            TOMOE.prototype.getXmlHttp = function(url, para, callback)
+            {
+                var self = this;
+                if (!this.checkXmlHttp())
+                {
+                    this.needSubmit = true;
+                    startCheckSubmitPool();
+                    return;
+                }
+
+                this.needSubmit = false;
+                this.xmlhttp.open("POST", url, true);
+
+                this.xmlhttp.onreadystatechange = function ()
+                {
+                    if (self.xmlhttp.readyState == 4 && self.xmlhttp.status == 200)
+                    {
+                        callback(self, self.xmlhttp.responseText);
+                    }
+                }
+
+                this.xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                this.xmlhttp.send(para);
+            }
+
+            onload = function ()
+            {
+                tomoe = new TOMOE();
+            }
+
+            //TOMOE类
+
+            function TOMOE()
+            {
+                //是否需要提交数据
+                this.needSubmit = false;
+                //是否在手写
+                this.isWriting = false;
+
+                var canvas = document.getElementById("tomoe-canvas");
+                canvas.className = "tomoe-canvas";
+                this.canvas = canvas;
+
+                var self = this;
+                canvas.onmouseup = function (e)
+                {
+                    self.mouseup(event);
+                    canvas.onmousemove = null;
+                }
+
+                canvas.onmousedown = function (e)
+                {
+                    self.mousedown(event);
+
+                    canvas.onmousemove = function (e)
+                    {
+                        self.mousemove(event);
+                    }
+                }
+
+                var clear_button = document.getElementById("tomoe-clear-button");
+                if(clear_button)
+                {
+                    clear_button.onclick = function (e)
+                    {
+                        self.clearAll();
+                    }
+                }
+
+                var learn_button = document.getElementById("tomoe-learn-button");
+                if(learn_button)
+                {
+                    learn_button.onclick = function (e)
+                    {
+                        self.learn();
+                    }
+                }
+
+                var showImg_checkbox = document.getElementById("tomoe-showImg-checkbox");
+                if(showImg_checkbox)
+                {
+                    showImg_checkbox.onclick = function (e)
+                    {
+                        showImg();
+                    }
+                }
+	
+                var char_text = document.getElementById("tomoe-char-text");
+                if(char_text)
+                {
+                    char_text.onblur = function (e)
+                    {
+                        self.getChars();
+                    }
+                    char_text.onkeypress = function (e)
+                    {
+                        var evt = e ? e : (event ? event : null);
+                        if(evt.keyCode == 13)
+                        {
+                            //self.getChars();
+                            this.blur();
+                        }
+                    }
+                }
+	
+                var trainType_select = document.getElementById("tomoe-trainType-select");
+                if(trainType_select)
+                {
+                    trainType_select.onchange = function (e)
+                    {
+                        self.getChars();
+                    }
+                }
+
+                self.resultArea = document.getElementById("tomoe-result");
+                self.resultArea.className = "tomoe-result";
+
+                self.msgArea = document.getElementById("tomoe-msg");
+                self.msgArea.className = "tomoe-msg";
+
+                //this.textInput = document.getElementById("tomoe-text");
+                //this.textInput.className = "tomoe-text";
+
+                var left = 0;
+                var top = 0;
+                for (var o = canvas; o; o = o.offsetParent)
+                {
+                    left += (o.offsetLeft - o.scrollLeft);
+                    top += (o.offsetTop - o.scrollTop);
+                }
+
+                this.offsetLeft = left; //边框偏移量
+                this.offsetTop = top;
+
+                var point = document.getElementById("tomoe-point");
+                this.offsetPointLeft = Math.round(parseInt(point.clientWidth) / 2); //点偏移量
+                this.offsetPointTop = Math.round(parseInt(point.clientHeight) / 2);
+
+                this.clearAll();
+
+                //  this.read(input);
+                //  this.getExample();
+            }
+
+            TOMOE.prototype.clearTrainChars = function ()
+            {
+                var trainChars = document.getElementById("tomoe-train-chars");
+                if(trainChars)
+                {
+                    clearAllNode(trainChars);
+                }
+                var imgSrc = document.getElementById("tomoe-imgSrc");
+                if(imgSrc)
+                {
+                    imgSrc.value = "";
+                }
+                //var
+            }
+
+            TOMOE.prototype.getChars = function ()
+            {
+                var select = document.getElementById("tomoe-trainType-select");
+                var character = document.getElementById("tomoe-char-text");
+                if(select && character)
+                {
+                    var trainType = select.options[select.selectedIndex].value;
+                    if(character.value != "")
+                    {
+                        var para = "type=" + TYPE_GET_CHARS;
+                        para += "&trainType=" + trainType;
+                        para += "&c=" + encodeURIComponent(character.value);
+                        var self = this;
+                        //showdebug(new Date());
+                        self.clearTrainChars();
+                        getXmlHttp("handwriting.php", para, self.showTrainChars);
+                    }
+                    else
+                    {
+                        showMsg("请输入汉字");
+                    }
+                }
+                else
+                {
+                    showMsg("找不到选择框");
+                }
+            }
+
+            function setCharInfo(id, src)
+            {
+                var id_txt = document.getElementById("tomoe-charId");
+                var src_txt = document.getElementById("tomoe-imgSrc");
+                if(id_txt && src_txt)
+                {
+                    id_txt.value = id;
+                    src_txt.value = src;
+                    showImg();
+                }
+            }
+
+            TOMOE.prototype.showTrainChars = function (msg)
+            {
+                try
+                {
+                    var ret = JSON.parse(msg);
+                    if(ret)
+                    {
+                        if(ret.msgno == 1)
+                        {
+                            var trainChars = document.getElementById("tomoe-train-chars");
+                            if(trainChars)
+                            {
+                                clearAllNode(trainChars);
+                                if(ret.res.length == 1)	//结果为1个的时候
+                                {
+                                    setCharInfo(ret.res[0].id, ret.res[0].img_src);
+                                }
+                                else	//结果为多个的时候
+                                {
+                                    var ul = document.createElement("ul");
+                                    ul.className = "tomoe-ul";
+                                    trainChars.appendChild(ul);
+                                    for(var i = 0; i < ret.res.length; i++)
+                                    {
+                                        var li = document.createElement("li");
+                                        var a = document.createElement("a");
+                                        a.href = "javascript:void(0)";
+                                        a.onclick = function (id, src)
+                                        {
+                                            return function()
+                                            {
+                                                setCharInfo(id, src);
+                                            }
+                                        }(ret.res[i].id, ret.res[i].img_src);
+
+                                        var img = document.createElement("img");
+                                        img.src = ret.res[i].thumbnail_src;
+
+                                        a.appendChild(img);
+                                        li.appendChild(a);
+                                        ul.appendChild(li);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            showdebug(ret.msg);
+                        }
+                    }
+                }
+                catch(e)
+                {
+                    //showdebug(e.name);
+                    showMsg(msg);
+                }
+            }
+
+            function clearAllNode(parentNode)
+            {
+                while(parentNode.firstChild)
+                {
+                    var oldNode = parentNode.removeChild(parentNode.firstChild);
+                    oldNode = null;
+                }
+            }
+
+            function showImg()
+            {
+                var src = document.getElementById("tomoe-imgSrc");
+                var show = document.getElementById("tomoe-showImg-checkbox");
+                var canvas = document.getElementById("tomoe-canvas");
+                if(src && show)
+                {
+                    if(show.checked && src.value != "")
+                    {
+                        canvas.style.backgroundPosition = "center";
+                        canvas.style.backgroundRepeat = "no-repeat";
+                        canvas.style.backgroundImage = "url(" + src.value + ")";
+                    }
+                    else
+                    {
+                        canvas.style.backgroundImage="none";
+                    }
+                }
+                else
+                {
+                    showdebug("未知错误");
+                }
+            }
+
+            TOMOE.prototype.learn = function ()
+            {
+                var id = document.getElementById("tomoe-charId");
+                if(id && id.value != "")
+                {
+                    if(this.writing.s.length > 0)
+                    {
+                        var para = "type=" + TYPE_LEARN;
+                        para += "&id=" + id.value;
+                        para += "&c=" + JSON.stringify(this.writing);
+                        getXmlHttp("handwriting.php", para, showMsg);
+                        showMsg("正在学习，请稍候...");
+                    }
+                    else
+                    {
+                        showMsg("请描绘笔迹");
+                    }
+                }
+                else
+                {
+                    showMsg("请输入汉字，并点击图片");
+                }
+            }
+
+            TOMOE.prototype.read = function ()
+            {
+                var s = '{"strokes":[{"points":[{"x":113,"y":93},{"x":164,"y":210}]},{"points":[{"x":0,"y":393},{"x":268,"y":322},{"x":131,"y":902},{"x":319,"y":860}]},{"points":[{"x":451,"y":47},{"x":535,"y":182}]},{"points":[{"x":972,"y":61},{"x":793,"y":196}]},{"points":[{"x":690,"y":0},{"x":502,"y":402},{"x":390,"y":411}]},{"points":[{"x":601,"y":248},{"x":840,"y":416}]},{"points":[{"x":446,"y":598},{"x":606,"y":748}]},{"points":[{"x":1000,"y":589},{"x":850,"y":706}]},{"points":[{"x":742,"y":551},{"x":596,"y":850},{"x":441,"y":939}]},{"points":[{"x":662,"y":771},{"x":812,"y":1000}]}],"width":1000,"height":1000,"left":0,"top":0}';
+
+                var ch = eval("(" + s + ")");
+                if (ch)
+                {
+                    resize(ch, ch.left, ch.top, ch.width, ch.height, this.canvas.clientWidth, this.canvas.clientHeight);
+                    this.showChar(ch);
+                }
+            }
+
+            //ws,hs为原始长宽，wd,hd为变更后的长宽
+            function resize(ch, left, top, ws, hs, wd, hd)
+            {
+                var w = (ws == 0) ? 1 : ws;
+                var h = (hs == 0) ? 1 : hs;
+
+                for (var i = 0; i < ch.s.length; i++)
+                {
+                    for (var j = 0; j < ch.s[i].p.length; j++)
+                    {
+                        var point = ch.s[i].p[j];
+                        point.x = Math.round((point.x - left) * wd / w);
+                        point.y = Math.round((point.y - top) * hd / h);
+                    }
+                }
+            }
+
+            TOMOE.prototype.showChar = function (ch)
+            {
+                for (var i = 0; i < ch.s.length; i++)
+                {
+                    for (var j = 0; j < ch.s[i].p.length; j++)
+                    {
+                        var point = ch.s[i].p[j];
+                        this.addPoint(point.x + this.offsetLeft, point.y + this.offsetTop);
+                    }
+                    this.finishStroke();
+                }
+                this.setInfo();
+                showdebug(JSON.stringify(this.writing));
+            }
+
+            TOMOE.prototype.readExample = function (s)
+            {
+                this.clearAll();
+                var lines = s.split('\n');
+                if (lines.length <= 3) return;
+
+                this.exampleId = lines[0];
+                this.resultChar = lines[1];
+                var results = lines[2].match(/:(\d+)/);
+                if (results == null) return;
+                var stroke_num = results[1];
+
+                for (var i = 0; i < stroke_num; ++i)
+                {
+                    var t = lines[i + 3].replace(/[\)\(]/g, "").split(' ');
+                    stroke_num = t[0];
+                    if (2 * stroke_num + 1 != t.length) return;
+                    for (var j = 0; j < stroke_num; ++j)
+                    {
+                        var x = parseInt(t[2 * j + 1]) + this.offsetLeft;
+                        var y = parseInt(t[2 * j + 2]) + this.offsetTop;
+                        this.addPoint(x, y);
+                    }
+                    this.finishStroke();
+                }
+            }
+
+            TOMOE.prototype.clearAll = function ()
+            {
+                this.clear();
+                //setCharInfo("", "");
+                showdebug("");
+                //this.textInput.value = "";
+            }
+
+            TOMOE.prototype.clear = function ()
+            {
+                this.xmlhttp = null;
+                this.point_num = 0;
+                this.writing = new Character();
+                this.stroke = new Stroke();
+                this.prev_x = -1;
+                this.prev_y = -1;
+                this.resultArea.innerHTML = "";
+                this.resultArea.style.display = "none";
+                this.resultNum = 0;
+                this.resultChar = "";
+                this.exampleId = 0;
+                this.dotint = 0;
+                this.minX = Number.MAX_VALUE;
+                this.maxX = -Number.MAX_VALUE;
+                this.minY = Number.MAX_VALUE;
+                this.maxY = -Number.MAX_VALUE;
+
+                var o = this.canvas;
+                clearAllNode(o);
+            }
+
+            TOMOE.prototype.showMsg = function (msg)
+            {
+                this.msgArea.innerHTML = msg;
+            }
+
+            TOMOE.prototype.showDebug = function(msg)
+            {
+                document.getElementById("debug").innerHTML = msg;
+            }
+
+            TOMOE.prototype.showResult = function (str)
+            {
+                var self = this;
+                this.resultArea.style.display = "block";
+                this.resultArea.innerHTML = "";
+                this.resultNum = 0;
+                try
+                {
+                    var obj = JSON.parse(str);
+                    if(obj.msgno == MSG_OK)
+                    {
+                        self.showCandidate(obj.res);
+                        self.showDebug(obj.debug);
+                    }
+                    else
+                    {
+                        this.msgArea.innerHTML = obj.msg;
+                    }
+                }
+                catch(e)
+                {
+                    this.msgArea.innerHTML = str;
+                }
+            }
+
+            TOMOE.prototype.showCandidate = function(arr)
+            {
+                var self = this;
+                var ui = document.createElement("ui");
+                ui.className = "tomoe-list";
+                for(var i = 0; i < arr.length; i++)
+                {
+                    var li = document.createElement("li");
+                    var txt = document.createTextNode(arr[i].ch);
+                    var span = document.createElement("span");
+                    span.className = "tomoe-char";
+                    span.appendChild(txt);
+
+                    var txt2 = document.createTextNode(arr[i].score);
+                    var span2 = document.createElement("span");
+                    span2.appendChild(txt2);
+                    span2.className = "tomoe-prob";
+
+                    li.appendChild(span);
+                    li.appendChild(span2);
+
+                    var idx = this.resultNum;
+                    li.onclick = function (event)
+                    {
+                        //self.sendFeedback(c);
+                        self.textInput.value += arr[i].ch;
+                        self.clear();
+                    }
+
+                    this.resultNum++;
+                    ui.appendChild(li);
+                }
+                this.resultArea.appendChild(ui);
+            }
+
+            TOMOE.prototype.addResult = function (c, p)
+            {
+                var div = document.createElement("div");
+                var txt = document.createTextNode(c);
+                var span = document.createElement("span");
+                span.className = "tomoe-char";
+                span.appendChild(txt);
+
+                var txt2 = document.createTextNode(p);
+                var span2 = document.createElement("span");
+                span2.appendChild(txt2);
+                span2.className = "tomoe-prob";
+
+                div.appendChild(span);
+                div.appendChild(span2);
+
+                var self = this;
+                var idx = this.resultNum;
+                div.onmouseover = function (event)
+                {
+                    self.highlight(idx);
+                }
+                div.onclick = function (event)
+                {
+                    self.sendFeedback(c);
+                    self.textInput.value += c;
+                    self.clear();
+                }
+
+                this.resultNum++;
+                this.resultArea.appendChild(div);
+            }
+
+            TOMOE.prototype.highlight = function (idx)
+            {
+                var divs = this.resultArea.getElementsByTagName('div');
+                for (var i = 0; i < divs.length; i++)
+                {
+                    if (i == idx)
+                    {
+                        divs[i].className = 'tomoe-srs';
+                    }
+                    else
+                    {
+                        divs[i].className = 'tomoe-sr';
+                    }
+                }
+            }
+
+            TOMOE.prototype.createButton = function (label)
+            {
+                var b = document.createElement("input");
+                b.className = "tomoe-button";
+                b.value = label;
+                b.type = "button";
+                return b;
+            }
+
+            TOMOE.prototype.getExample = function (c)
+            {
+                if (!this.checkXmlHttp()) return;
+                this.xmlhttp.open("POST", "tomoeajax.cgi", true);
+
+                var self = this;
+                this.xmlhttp.onreadystatechange = function ()
+                {
+                    //    var r = self.xmlhttp.responseText;
+                    //    if (r == "") {
+                    //      alert("データがありません");
+                    //      return;
+                    //    }
+
+                    self.readExample(input);
+                    //    self.read(r);
+                    self.showResult();
+                    self.addResult(self.resultChar, "1.0");
+
+                    var ok = self.createButton("正解");
+                    ok.onclick = function ()
+                    {
+                        //      self.sendFeedback2(self.resultChar + " # correct");
+                        self.clearAll();
+                        self.getExample();
+                    }
+                    self.resultArea.appendChild(ok);
+
+                    var progress = self.createButton("書きかけ");
+                    progress.onclick = function ()
+                    {
+                        //      self.sendFeedback2(self.resultChar + " # in_stroke");
+                        self.clearAll();
+                        self.getExample();
+                    }
+                    self.resultArea.appendChild(progress);
+
+                    var pending = self.createButton("保留");
+                    pending.onclick = function ()
+                    {
+                        //      self.sendFeedback2(self.resultChar + " # pending");
+                        self.clearAll();
+                        self.getExample();
+                    }
+                    self.resultArea.appendChild(pending);
+                };
+                this.xmlhttp.send("");
+            }
+
+            TOMOE.prototype.sendFeedback = function (c)
+            {
+                this.xmlhttp.open("POST", "tomoeajaxlog.cgi", true);
+                var r = this.makeMessage(c);
+                this.xmlhttp.onreadystatechange = function ()
+                {
+                };
+                this.xmlhttp.send(r);
+            }
+
+            TOMOE.prototype.sendStroke = function ()
+            {
+                var para = "type=" + TYPE_RECOGNIZE;
+                para += "&c=" + JSON.stringify(this.writing);
+                var self = this;
+                this.getXmlHttp("handwriting.php", para, self.getResponse);
+            }
+
+            TOMOE.prototype.getResponse = function(obj, str)
+            {
+                if( typeof(obj) == "object")
+                {
+                    obj.showResult(str);
+                }
+            }
+
+            TOMOE.prototype.mouseup = function (e)
+            {
+                this.trace(e);
+                this.finishStroke();
+                this.setInfo();
+                this.isWriting = false;
+                if(mode == TYPE_RECOGNIZE)
+                {
+                    this.sendStroke();
+                }
+            }
+
+            TOMOE.prototype.setInfo = function ()
+            {
+                this.writing.left = this.minX; //左上角的顶点坐标
+                this.writing.top = this.minY;
+                this.writing.width = this.maxX - this.minX;
+                this.writing.height = this.maxY - this.minY;
+            }
+
+            TOMOE.prototype.mousemove = function (e)
+            {
+                this.trace(e);
+            }
+
+            TOMOE.prototype.mousedown = function (e)
+            {
+                this.isWriting = true;
+                this.trace(e);
+            }
+
+            TOMOE.prototype.finishStroke = function ()
+            {
+                this.point_num = 0;
+                this.dotint = 0;
+                addStroke(this.writing, this.stroke);
+                this.prev_x = -1;
+                this.prev_y = -1;
+            }
+
+            TOMOE.prototype.addPoint = function (x, y)
+            {
+                var x1 = x - this.offsetPointLeft;
+                var y1 = y - this.offsetPointTop;
+                var x2 = x - this.offsetLeft;
+                var y2 = y - this.offsetTop;
+
+                if (this.point_num == 0)
+                {
+                    this.stroke = new Stroke();
+                }
+
+                addPointXY(this.stroke, x2, y2);
+                this.point_num++;
+
+                this.minX = (x2 < this.minX) ? x2 : this.minX;
+                this.maxX = (x2 > this.maxX) ? x2 : this.maxX;
+                this.minY = (y2 < this.minY) ? y2 : this.minY;
+                this.maxY = (y2 > this.maxY) ? y2 : this.maxY;
+
+                if (this.prev_x != -1)
+                {
+                    this.drawLine(this.prev_x, this.prev_y, x1, y1);
+                }
+                else
+                {
+                    this.drawDot(x1, y1);
+                }
+
+                this.prev_x = x1;
+                this.prev_y = y1;
+            }
+
+            TOMOE.prototype.trace = function (e)
+            {
+                var pos = getPosition(e);
+                this.addPoint(pos.x, pos.y);
+            }
+
+            TOMOE.prototype.drawDot = function (x, y)
+            {
+                if (this.dotint == 0)
+                {
+                    var dot = document.createElement("span");
+                    dot.style.left = x + "px";
+                    dot.style.top = y + "px";
+                    dot.className = "tomoe-dot";
+                    if(mode == TYPE_LEARN)
+                    {
+                        dot.className = "tomoe-dot-train";
+                    }
+                    this.canvas.appendChild(dot);
+                    //showdebug(this.canvas.innerHTML);
+                    this.dotint = 4;
+                }
+                this.dotint--;
+            }
+
+            TOMOE.prototype.drawLine = function (x1, y1, x2, y2)
+            {
+                if (x1 == x2 && y1 == y2) return;
+
+                var x_move = x2 - x1;
+                var y_move = y2 - y1;
+                var x_diff = x_move < 0 ? 1 : -1;
+                var y_diff = y_move < 0 ? 1 : -1;
+
+                if (Math.abs(x_move) >= Math.abs(y_move))
+                {
+                    for (var i = x_move; i != 0; i += x_diff)
+                    {
+                        this.drawDot(x2 - i, y2 - Math.round(y_move * i / x_move));
+                    }
+                }
+                else
+                {
+                    for (i = y_move; i != 0; i += y_diff)
+                    {
+                        this.drawDot(x2 - Math.round(x_move * i / y_move), y2 - i);
+                    }
+                }
+            }
+
+            function showMsg(str)
+            {
+                var msg = document.getElementById("msg");
+                try
+                {
+                    var obj = JSON.parse(str);
+                    if(obj.msgno == MSG_OK)
+                    {
+            
+                    }
+                    else
+                    {
+                        msg.innerHTML = obj.msg;
+                    }
+                }
+                catch(e)
+                {
+                    msg.innerHTML = str;
+                }
+
+            }
+        </script>
+        <script>
+            function showdebug(str)
+            {
+                var debug = document.getElementById("debug");
+                debug.innerHTML += str +"<br>";
+            }
+        </script>
+    </head>
+    <body>
+        <table class="tomoe-table">
+            <tr>
+                <td><div id="tomoe-canvas" class="tomoe-canvas">
+                        <span id="tomoe-point" class="tomoe-dot"></span>
+                    </div>
+                </td>
+                <td><div id="tomoe-result" class="tomoe-result"></div></td>
+            </tr>
+        </table>
+        <table class="tomoe-table">
+            <tr>
+                <td><input id="tomoe-text" type=text size=40 />
+                    &nbsp;<input id="tomoe-clear-button" type="button" value="clear" /><br />
+                    <input id="tomoe-read-button" type="button" value="read" />
+                </td></tr>
+        </table>
+        <div id="tomoe-msg"></div>
+        <div id="debug"></div>
+    </body>
+</html>
