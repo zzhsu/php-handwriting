@@ -40,7 +40,7 @@ function main()
                 get_chars($ret, $trainType, $char, $unicodeFrom, $unicodeTo);
                 break;
             case TYPE_LEARN:                    //学习
-                $writing = isset($_POST['c']) ? json_decode($_POST['c']) : null;;  //获取客户端传过来的笔画
+                $writing = isset($_POST['c']) ? json_decode($_POST['c']) : null;  //获取客户端传过来的笔画
                 $id = isset($_POST['id']) ? $_POST['id'] : null;
                 $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : null;
                 //$id = 1;    //debug;
