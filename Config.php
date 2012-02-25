@@ -43,7 +43,7 @@ define('TYPE_UNKNOWN',            -1);  //未知类别（前台程序有问题�
 define('TYPE_RECOGNIZE',          1);   //识别
 define('TYPE_LEARN',              2);   //学习
 define('TYPE_GET_CHARS',          3);   //获取字符
-define('TYPE_GET_WRITINGS',       4);   //取得该字的所有写法
+define('TYPE_GET_WRITINGS',       4);   //取得该字的笔迹
 define('TYPE_DEL_WRITINGS',       5);   //删除某笔画
 
 //取得汉字用

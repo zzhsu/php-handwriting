@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>Canvas tutorial</title>
+    <script type="text/javascript">
+      function draw(){
+        var canvas = document.getElementById('tutorial');
+        if (canvas.getContext){
+          var ctx = canvas.getContext('2d');
+		  var img = new Image();  
+   img.onload = function(){  
+   ctx.drawImage(img,0,0);  
+		        ctx.beginPath(); 
+	ctx.lineWidth = 4;
+	ctx.lineCap = "round";
+	ctx.lineJoin = "round";
+      ctx.moveTo(30,100);  
+      ctx.lineTo(70,66);  
+      ctx.lineTo(103,76);  
+      ctx.lineTo(170,15);  
+	  ctx.strokeStyle  = "orange";  
+      ctx.stroke();  
+	}  
+    img.src = 'http://www.zdic.net/pic/300/cn/1/8C08.gif';
+        }
+		else
+		{
+			alert("不支持Canvas");
+		}
+      }
+    </script>
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+  </head>
+  <body onload="draw();">
+    <canvas id="tutorial" width="300" height="300">不支持Canvas</canvas>
+  </body>
+</html>

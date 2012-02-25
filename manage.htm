@@ -8,27 +8,16 @@
         <script type="text/javascript" src="json2.js"></script>
         <script type="text/javascript" src="tomoe.js"></script>
         <script type="text/javascript">
-            mode = 2;
+            mode = TYPE_GET_WRITINGS;
         </script>
     </head>
     <body>
-        <select id="tomoe-trainType-select" name="trainType">
-            <option value="1">Unicode汉字（直接在文本框输入）</option>
-            <option value="2">异体字（在文本框中输入正字）</option>
-            <option value="3">汉典内部编码（输入编码）</option>
-            <option value="4">Unicode代码区域</option>
-            <option value="5">随机获取</option>
-        </select><br />
-
-        请输入<input id="tomoe-char-text" type="text" size=4 />
-        <input id="tomoe-unicode-from" style="display: none;" type="text" size="6">
-        <label id="tomoe-unicode-label" style="display: none;">～</label>
-        <input id="tomoe-unicode-to" style="display: none;" type="text" size="6">
-        <input id="tomoe-getChars-button" type="button" value="获取汉字">
+        <input id="tomoe-char-text" type="text" size=4 />
+        <input id="tomoe-getWritings-button" type="button" value="获取笔迹">
         <input id="tomoe-showImg-checkbox" type="checkbox" name="showImg" checked>加载图片
-        
+
         <input id="tomoe-imgSrc" type="hidden" />
-        <input id="tomoe-charId" type="hidden" />
+        <input id="tomoe-writingId" type="hidden" />
 
         <table class="tomoe-table">
             <tr>
