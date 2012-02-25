@@ -32,7 +32,7 @@ function main()
                 //$writing = debug_getInput();  //debug
                 recognize($ret, $writing, $rank);
                 break;
-            case TYPE_GET_CHARS:
+            case TYPE_GET_CHARS:                //获取汉字（用于学习）
                 $trainType = isset($_POST['trainType']) ? $_POST['trainType'] : null;
                 $char = isset($_POST['c']) ? $_POST['c'] : null;
                 $unicodeFrom = isset($_POST['unicodeFrom']) ? $_POST['unicodeFrom'] : null;
@@ -48,8 +48,9 @@ function main()
                 learn($ret, $writing, $id, $user_id);
                 //debug_train($writing, $ret);
                 break;
-            case TYPE_GET_WRITINGS:             //获取笔画数组（用于管理）
-                //getWritings($writing, $ret);
+            case TYPE_GET_WRITINGS:             //获取笔迹（用于管理）
+                $char = isset($_POST['c']) ? $_POST['c'] : null;
+                getWritings($ret, $char);
                 break;
             case TYPE_DEL_WRITING:              //删除某笔画
                 //delWriting($writing, $ret);

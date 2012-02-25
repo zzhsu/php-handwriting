@@ -240,6 +240,14 @@ function TOMOE()
         }
     }
 
+    var getWritings_button = document.getElementById("tomoe-getWritings-button");
+    if(getWritings_button)
+    {
+            getWritings_button.onclick = function (e)
+            {
+                self.getWritings();
+            }
+    }
 
     //清除按钮
     var clear_button = document.getElementById("tomoe-clear-button");
@@ -534,6 +542,17 @@ TOMOE.prototype.getChars = function ()
     }
 }
 
+TOMOE.prototype.getWritings = function ()
+{
+    var character = document.getElementById("tomoe-char-text");
+    var para = "";
+    var self = this;
+
+    para = "type=" + TYPE_GET_WRITINGS;
+    para += "&c=" + character.value;
+    this.getXmlHttp("handwriting.php", para, self.callback,"showWritings");
+}
+
 TOMOE.prototype.showTrainChars = function (msg)
 {
     try
@@ -590,6 +609,26 @@ TOMOE.prototype.showTrainChars = function (msg)
     }
 }
 
+TOMOE.prototype.showWritings = function(msg)
+{
+    try
+    {
+        var self = this;
+        var ret = JSON.parse(msg);
+        if(ret)
+        {
+            if(ret.msgno == MSG_OK)
+            {
+                
+            }
+        }
+    }
+    catch(e)
+    {
+        this.showMsg(msg);
+    }
+}
+
 TOMOE.prototype.showImg = function()
 {
     var src = document.getElementById("tomoe-imgSrc");
@@ -600,7 +639,7 @@ TOMOE.prototype.showImg = function()
         {
             this.canvas.style.backgroundPosition = "center";
             this.canvas.style.backgroundRepeat = "no-repeat";
-            this.canvas.style.backgroundImage = "url(" + src.value + ")";
+            this.canvas.style.backgroundImage = "url('" + src.value + "')";
         }
         else
         {
