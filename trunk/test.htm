@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Canvas tutorial</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<!--[if lt IE 9]>
-    <script type="text/javascript" src="excanvas.js"></script>
-    <![endif]-->
+<!doctype html><html><head><meta charset="utf-8" />
+<title>Hello HTML5::Canvas world</title>
+<script src="uuCanvas.js"></script>
     <script type="text/javascript">
 //获取事件的坐标
 function GetPosition(e)
@@ -75,19 +70,13 @@ function AddEvent(obj, strEvent, func)
 
   var canvas, context, tool;
 
-	function init ()
+	function xcanvas ()
 	{
     // Find the canvas element.
     canvas = document.getElementById('tomoe-canvas');
     if (!canvas)
 	{
       alert('Error: I cannot find the canvas element!');
-      return;
-    }
-
-    if (!canvas.getContext)
-	{
-      alert('Error: no canvas.getContext!');
       return;
     }
 
@@ -211,7 +200,7 @@ function AddEvent(obj, strEvent, func)
       canvas { border: 1px solid black; }
     </style>
   </head>
-  <body onload="init()">
-    <canvas id="tomoe-canvas" width="300" height="300">不支持Canvas</canvas>
+  <body>
+    <canvas id="tomoe-canvas" class="flash" width="300" height="300"></canvas>
   </body>
 </html>
