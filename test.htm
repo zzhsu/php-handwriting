@@ -112,6 +112,7 @@ function AddEvent(obj, strEvent, func)
 	AddEvent(canvas, 'mousemove', ev_canvas);
 	AddEvent(canvas, 'mouseup', ev_canvas);
 	AddEvent(canvas, 'mouseout', ev_canvas);
+	AddEvent(canvas, 'selectstart', function(){return false;});
   }
 
   // This painting tool works like a drawing pencil which tracks the mouse 
