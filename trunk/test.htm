@@ -1,31 +1,40 @@
-<!doctype html><html><head><meta charset="utf-8" />
+<!DOCTYPE html><html><head><meta charset="utf-8" />
 <title>Hello HTML5::Canvas world</title>
+<!--[if lt IE 9]>
 <script src="uuCanvas.js"></script>
+<![endif]-->
     <script type="text/javascript">
 //获取事件的坐标
 function GetPosition(e)
 {
     var evt = (e) ? e : ((window.event) ? window.event : null);
-    var left = 0;
-    var top = 0;
 
-	// Firefox
-	if (evt.layerX || evt.layerX == 0)
+	//iPad
+	if (evt.targetTouches)
 	{
-      left = evt.layerX;
-      top = evt.layerY;
-    }
+		evt._x = evt.targetTouches[0].pageX;
+		evt._y = evt.targetTouches[0].pageX;
+	}
 	// IE
 	else if (evt.offsetX || evt.offsetX == 0)
 	{ 
-      left = evt.offsetX;
-      top = evt.offsetY;
+		evt._x = evt.offsetX;
+		evt._y = evt.offsetY;
     }
+	// Firefox
+	else if (evt.layerX || evt.layerX == 0)
+	{
+		evt._x = evt.layerX;
+		evt._y = evt.layerY;
+    }
+	//未知
+	else
+	{
+		evt._x = 0;
+		evt._y = 0;
+	}
 
-    return {
-        x: left,
-        y: top
-    };
+    return evt;
 }
 
 //判断事件是否支持
@@ -68,44 +77,47 @@ function AddEvent(obj, strEvent, func)
 }
 
 
-  var canvas, context, tool;
+	var canvas, context, tool;
 
-	function xcanvas ()
+	function xcanvas()
 	{
-    // Find the canvas element.
-    canvas = document.getElementById('tomoe-canvas');
-    if (!canvas)
-	{
-      alert('Error: I cannot find the canvas element!');
-      return;
-    }
+		try
+		{
+			// Find the canvas element.
+			canvas = document.getElementById('tomoe-canvas');
+		    context = canvas.getContext('2d');
+		}
+		catch (e)
+		{
+			//alert("此浏览器不支持HTML5");
+			return;
+		}
 
-    // Get the 2D canvas context.
-    context = canvas.getContext('2d');
-    if (!context)
-	{
-      alert('Error: failed to getContext!');
-      return;
-    }
+		context.lineWidth = 4;
+		context.lineCap = "round";
+		context.lineJoin = "round";
+		context.strokeStyle  = "orange"; 
 
-	context.lineWidth = 4;
-	context.lineCap = "round";
-	context.lineJoin = "round";
-	context.strokeStyle  = "orange"; 
+		// Pencil tool instance.
+	    tool = new tool_pencil();
 
-    // Pencil tool instance.
-    tool = new tool_pencil();
+		// Attach the mousedown, mousemove and mouseup event listeners.
+		AddEvent(canvas, 'mousedown', ev_canvas);
+		AddEvent(canvas, 'mousemove', ev_canvas);
+		AddEvent(canvas, 'mouseup', ev_canvas);
+		AddEvent(canvas, 'mouseout', ev_canvas);
+		AddEvent(canvas, 'selectstart', function(){return false;});
+		//兼容iPad等触摸屏
+		if (isEventSupported("touchstart"))
+		{
+			AddEvent(canvas, 'touchstart', ev_canvas);
+			AddEvent(canvas, 'touchmove', ev_canvas);
+			AddEvent(canvas, 'touchend', ev_canvas);
+		}
+	}
 
-    // Attach the mousedown, mousemove and mouseup event listeners.
-	AddEvent(canvas, 'mousedown', ev_canvas);
-	AddEvent(canvas, 'mousemove', ev_canvas);
-	AddEvent(canvas, 'mouseup', ev_canvas);
-	AddEvent(canvas, 'mouseout', ev_canvas);
-	AddEvent(canvas, 'selectstart', function(){return false;});
-  }
-
-  // This painting tool works like a drawing pencil which tracks the mouse 
-  // movements.
+	// This painting tool works like a drawing pencil which tracks the mouse 
+	// movements.
 	function tool_pencil ()
 	{
 		var tool = this;
@@ -116,9 +128,14 @@ function AddEvent(obj, strEvent, func)
 		this.mousedown = function (ev)
 		{
 			context.beginPath();
-			context.moveTo(ev.x, ev.y);
+			context.moveTo(ev._x, ev._y);
 			tool.started = true;
 		};
+
+		this.touchstart = function (ev)
+		{
+			
+		}
 
 		// This function is called every time you move the mouse. Obviously, it only 
 		// draws if the tool.started state is set to true (when you are holding down 
@@ -127,7 +144,7 @@ function AddEvent(obj, strEvent, func)
 		{
 			if (tool.started)
 			{
-				context.lineTo(ev.x, ev.y);
+				context.lineTo(ev._x, ev._y);
 				context.stroke();
 			}
 		};
@@ -164,9 +181,13 @@ function AddEvent(obj, strEvent, func)
 	    var func = tool[ev.type];
 		if (func)
 		{
-		  func(pos);
+			func(pos);
 	    }
 	}
+
+
+	AddEvent(window, 'load', function(){xcanvas();});
+
 
       function draw(){
         var canvas = document.getElementById('tomoe-canvas');
@@ -201,6 +222,6 @@ function AddEvent(obj, strEvent, func)
     </style>
   </head>
   <body>
-    <canvas id="tomoe-canvas" class="flash" width="300" height="300"></canvas>
+    <canvas id="tomoe-canvas" width="300" height="300"></canvas>
   </body>
 </html>
