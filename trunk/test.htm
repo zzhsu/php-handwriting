@@ -1,5 +1,8 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" />
 <title>Hello HTML5::Canvas world</title>
+<link rel="stylesheet" href="jquery.mobile-1.1.0-rc.1.min.css" />
+<script src="jquery-1.7.1.min.js"></script>
+<script src="jquery.mobile-1.1.0-rc.1.min.js"></script>
 <!--[if lt IE 9]>
 <script src="uuCanvas.js"></script>
 <![endif]-->
@@ -7,34 +10,10 @@
 //获取事件的坐标
 function GetPosition(e)
 {
-    var evt = (e) ? e : ((window.event) ? window.event : null);
-
-	//iPad
-	if (evt.targetTouches)
-	{
-		evt._x = evt.targetTouches[0].pageX;
-		evt._y = evt.targetTouches[0].pageX;
-	}
-	// IE
-	else if (evt.offsetX || evt.offsetX == 0)
-	{ 
-		evt._x = evt.offsetX;
-		evt._y = evt.offsetY;
-    }
-	// Firefox
-	else if (evt.layerX || evt.layerX == 0)
-	{
-		evt._x = evt.layerX;
-		evt._y = evt.layerY;
-    }
-	//未知
-	else
-	{
-		evt._x = 0;
-		evt._y = 0;
-	}
-
-    return evt;
+	var pos = e.target.offset();
+	e._x = e.pageX - pos.left;
+	e._y = e.pageY - pos.right;
+    return e;
 }
 
 //判断事件是否支持
@@ -102,18 +81,10 @@ function AddEvent(obj, strEvent, func)
 	    tool = new tool_pencil();
 
 		// Attach the mousedown, mousemove and mouseup event listeners.
-		AddEvent(canvas, 'mousedown', ev_canvas);
-		AddEvent(canvas, 'mousemove', ev_canvas);
-		AddEvent(canvas, 'mouseup', ev_canvas);
-		AddEvent(canvas, 'mouseout', ev_canvas);
-		AddEvent(canvas, 'selectstart', function(){return false;});
-		//兼容iPad等触摸屏
-		if (isEventSupported("touchstart"))
-		{
-			AddEvent(canvas, 'touchstart', ev_canvas);
-			AddEvent(canvas, 'touchmove', ev_canvas);
-			AddEvent(canvas, 'touchend', ev_canvas);
-		}
+		canvas.bind('vmousedown', ev_canvas);
+		canvas.bind('vmousemove', ev_canvas);
+		canvas.bind('vmouseup', ev_canvas);
+		canvas.bind('vmouseover', ev_canvas);
 	}
 
 	// This painting tool works like a drawing pencil which tracks the mouse 
@@ -179,6 +150,7 @@ function AddEvent(obj, strEvent, func)
 	
 		// Call the event handler of the tool.
 	    var func = tool[ev.type];
+	    alert(ev.type);
 		if (func)
 		{
 			func(pos);
