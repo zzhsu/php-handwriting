@@ -48,6 +48,9 @@ function GetPosition(e)
 		$('#tomoe-canvas').bind('vmousemove', ev_canvas);
 		$('#tomoe-canvas').bind('vmouseup', ev_canvas);
 		$('#tomoe-canvas').bind('vmouseout', ev_canvas);
+		//防止网页滑动
+		$(document).bind('touchmove', function(event){event.preventDefault();})
+		//document.body.addEventListener('touchmove',,false);
 	}
 
 	// This painting tool works like a drawing pencil which tracks the mouse 
