@@ -1,5 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8" />
 <title>Hello HTML5::Canvas world</title>
+<meta name="viewport" content="width=800, initial-scale=1">
+
 <link rel="stylesheet" href="jquery.mobile-1.1.0-rc.1.min.css" />
 <script src="jquery-1.7.1.min.js"></script>
 <script src="jquery.mobile-1.1.0-rc.1.min.js"></script>
@@ -10,49 +12,10 @@
 //获取事件的坐标
 function GetPosition(e)
 {
-	var pos = e.target.offset();
+	var pos = $('#tomoe-canvas').offset();
 	e._x = e.pageX - pos.left;
-	e._y = e.pageY - pos.right;
+	e._y = e.pageY - pos.top;
     return e;
-}
-
-//判断事件是否支持
-function isEventSupported(eventName)
-{
-   	var TAGNAMES = {
-     	'select':'input',
-		'change':'input',
-      	'submit':'form',
-		'reset':'form',
-      	'error':'img',
-		'load':'img',
-		'abort':'img'
-   	};
-    var el = document.createElement(TAGNAMES[eventName] || 'div');
-    eventName = 'on' + eventName;
-    var isSupported = (eventName in el);
-    if (!isSupported)
-	{
-		el.setAttribute(eventName, 'return;');
-        isSupported = typeof el[eventName] == 'function';
-    }
-    el = null;
-    return isSupported;
-}
-
-//添加事件
-//obj:对象；strEvent:事件（字符串）；func:函数
-function AddEvent(obj, strEvent, func)
-{
-	if(window.addEventListener)
-	{
-		obj.addEventListener(strEvent, func, false);
-	}
-	//适用于IE
-	else
-	{
-		obj.attachEvent("on" + strEvent, func);
-	}
 }
 
 
@@ -81,10 +44,10 @@ function AddEvent(obj, strEvent, func)
 	    tool = new tool_pencil();
 
 		// Attach the mousedown, mousemove and mouseup event listeners.
-		canvas.bind('vmousedown', ev_canvas);
-		canvas.bind('vmousemove', ev_canvas);
-		canvas.bind('vmouseup', ev_canvas);
-		canvas.bind('vmouseover', ev_canvas);
+		$('#tomoe-canvas').bind('vmousedown', ev_canvas);
+		$('#tomoe-canvas').bind('vmousemove', ev_canvas);
+		$('#tomoe-canvas').bind('vmouseup', ev_canvas);
+		$('#tomoe-canvas').bind('vmouseout', ev_canvas);
 	}
 
 	// This painting tool works like a drawing pencil which tracks the mouse 
@@ -96,22 +59,17 @@ function AddEvent(obj, strEvent, func)
 
 		// This is called when you start holding down the mouse button.
 		// This starts the pencil drawing.
-		this.mousedown = function (ev)
+		this.vmousedown = function (ev)
 		{
 			context.beginPath();
 			context.moveTo(ev._x, ev._y);
 			tool.started = true;
 		};
 
-		this.touchstart = function (ev)
-		{
-			
-		}
-
 		// This function is called every time you move the mouse. Obviously, it only 
 		// draws if the tool.started state is set to true (when you are holding down 
 		// the mouse button).
-		this.mousemove = function (ev)
+		this.vmousemove = function (ev)
 		{
 			if (tool.started)
 			{
@@ -121,17 +79,17 @@ function AddEvent(obj, strEvent, func)
 		};
 
 		// This is called when you release the mouse button.
-		this.mouseup = function (ev)
+		this.vmouseup = function (ev)
 		{
 			if (tool.started)
 			{
-				tool.mousemove(ev);
+				tool.vmousemove(ev);
 				tool.started = false;
 			}
 		};
 
 		// This is called when you release the mouse button.
-		this.mouseout = function (ev)
+		this.vmouseout = function (ev)
 		{
 			if (tool.started)
 			{
@@ -150,7 +108,6 @@ function AddEvent(obj, strEvent, func)
 	
 		// Call the event handler of the tool.
 	    var func = tool[ev.type];
-	    alert(ev.type);
 		if (func)
 		{
 			func(pos);
@@ -158,7 +115,10 @@ function AddEvent(obj, strEvent, func)
 	}
 
 
-	AddEvent(window, 'load', function(){xcanvas();});
+	$(document).ready(function(){
+   xcanvas();
+	});
+	//AddEvent(window, 'load', function(){xcanvas();});
 
 
       function draw(){
@@ -194,6 +154,8 @@ function AddEvent(obj, strEvent, func)
     </style>
   </head>
   <body>
+
     <canvas id="tomoe-canvas" width="300" height="300"></canvas>
+
   </body>
 </html>
