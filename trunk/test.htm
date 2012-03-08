@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=500, initial-scale=1">
     <link rel="stylesheet" href="css/jquery.mobile.css" />
-
+    <script type="text/javascript" src="js/uuCanvas.js"></script>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/jquery.mobile.js"></script>
 
@@ -90,7 +90,7 @@ function xcanvas()
 	$('#tomoe-canvas').bind('vmousemove', ev_canvas);
 	$('#tomoe-canvas').bind('vmouseup', ev_canvas);
 	$('#tomoe-canvas').bind('vmouseout', ev_canvas);
-	$('#tomoe-canvas').bind('vmousecancel', ev_canvas);
+	//$('#tomoe-canvas').bind('vmousecancel', ev_canvas);
 	//防止网页滑动
 	$(document).bind('touchmove', function(e){e.preventDefault();})
 
@@ -187,10 +187,11 @@ $(document).ready(function()
 	if (!context)
 	{
 		//加载兼容js脚本
-		$('script', {
-			type: 'text/javascript',
-			src: 'js/uuCanvas.js'
-		}).appendTo("head");
+		//$('<script />', {
+		//	type: 'text/javascript',
+		//	src: 'js/uuCanvas.js'
+		//}).appendTo("head");
+		//$.getScript('js/uuCanvas.js');
 	}
 });
 
