@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html debug="true">
+<html>
   <head>
     <title>Canvas测试</title>
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=500, initial-scale=1">
-    <link rel="stylesheet" href="jquery.mobile.css" />
+    <link rel="stylesheet" href="css/jquery.mobile.css" />
 
-    <script type="text/javascript" src="jquery.js"></script>
-    <script type="text/javascript" src="jquery.mobile.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile.js"></script>
 
 <script type="text/javascript">
 //类声明
@@ -187,9 +187,9 @@ $(document).ready(function()
 	if (!context)
 	{
 		//加载兼容js脚本
-		$('<script />', {
+		$('script', {
 			type: 'text/javascript',
-			src: 'uuCanvas.js'
+			src: 'js/uuCanvas.js'
 		}).appendTo("head");
 	}
 });

@@ -507,7 +507,7 @@ TOMOE.prototype.getChars = function ()
         para = "type=" + TYPE_GET_CHARS;
         para += "&trainType=" + trainType;
         self.clearTrainChars();
-        this.getXmlHttp("handwriting.php", para, self.callback,"showTrainChars");
+        this.getXmlHttp("php/handwriting.php", para, self.callback,"showTrainChars");
     }
     else if(trainType == TRAINTYPE_UNICODE)
     {
@@ -518,7 +518,7 @@ TOMOE.prototype.getChars = function ()
             para += "&unicodeFrom=" + parseInt(unicodeFrom.value, 16);
             para += "&unicodeTo=" + parseInt(unicodeTo.value, 16);
             self.clearTrainChars();
-            this.getXmlHttp("handwriting.php", para, self.callback,"showTrainChars");
+            this.getXmlHttp("php/handwriting.php", para, self.callback,"showTrainChars");
         }
         else
         {
@@ -533,7 +533,7 @@ TOMOE.prototype.getChars = function ()
             para += "&trainType=" + trainType;
             para += "&c=" + encodeURIComponent(character.value);
             self.clearTrainChars();
-            this.getXmlHttp("handwriting.php", para, self.callback,"showTrainChars");
+            this.getXmlHttp("php/handwriting.php", para, self.callback,"showTrainChars");
         }
         else
         {
@@ -550,7 +550,7 @@ TOMOE.prototype.getWritings = function ()
 
     para = "type=" + TYPE_GET_WRITINGS;
     para += "&c=" + character.value;
-    this.getXmlHttp("handwriting.php", para, self.callback,"showWritings");
+    this.getXmlHttp("php/handwriting.php", para, self.callback,"showWritings");
 }
 
 TOMOE.prototype.showTrainChars = function (msg)
@@ -669,11 +669,11 @@ TOMOE.prototype.learn = function ()
             var self = this;
             if(trainType == TRAINTYPE_RANDOM)
             {
-                this.getXmlHttp("handwriting.php", para, self.callback, "showMsgAndGetChars");
+                this.getXmlHttp("php/handwriting.php", para, self.callback, "showMsgAndGetChars");
             }
             else
             {
-                this.getXmlHttp("handwriting.php", para, self.callback, "showMsg");
+                this.getXmlHttp("php/handwriting.php", para, self.callback, "showMsg");
             }
             this.showMsg("正在学习，请稍候...");
             this.clearAll();
@@ -921,7 +921,7 @@ TOMOE.prototype.sendStroke = function ()
         para += "&c=" + JSON.stringify(this.writing);
         var self = this;
         this.showMsg("正在提交数据…");
-        this.getXmlHttp("handwriting.php", para, self.callback, "showResult");
+        this.getXmlHttp("php/handwriting.php", para, self.callback, "showResult");
     }
 }
 
