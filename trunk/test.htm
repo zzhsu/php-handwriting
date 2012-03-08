@@ -1,164 +1,206 @@
-<!DOCTYPE html><html><head><meta charset="utf-8" />
-<title>Canvas测试</title>
-<meta name="viewport" content="width=500, initial-scale=1">
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Canvas测试</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=500, initial-scale=1">
+    <link rel="stylesheet" href="jquery.mobile.css" />
 
-<link rel="stylesheet" href="jquery.mobile.css" />
-<script src="jquery.js"></script>
-<script src="jquery.mobile.js"></script>
-<!--[if lt IE 9]>
-<script src="uuCanvas.js"></script>
-<![endif]-->
-    <script type="text/javascript">
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jquery.mobile.js"></script>
+
+<script type="text/javascript">
+//类声明
+var Character = function (strokes)
+{
+    this.s = new Array();
+    this.width = 0;
+    this.height = 0;
+    this.left = 0;
+    this.top = 0;
+
+    if (typeof(s) !== "undefined")
+    {
+        this.s = this.s.concat(strokes);
+    }
+}
+
+var Stroke = function (points)
+{
+    this.p = new Array();
+
+    if (typeof(p) !== "undefined")
+    {
+        this.p = this.p.concat(points);
+    }
+}
+
+var Point = function (x, y)
+{
+    this.x = -1;
+    this.y = -1;
+
+    if (typeof(x) !== "undefined")
+    {
+        this.x = x;
+        this.y = y;
+    }
+}
+//end 类声明
+
+var TYPE_UNKNOWN = -1;
+var TYPE_RECOGNIZE = 1;
+var TYPE_LEARN = 2;
+var TYPE_GET_CHARS = 3;
+var TYPE_GET_WRITINGS = 4;
+var TYPE_DEL_WRITINGS = 5;
+var TRAINTYPE_UNICODE = 4;
+var TRAINTYPE_RANDOM = 5;
+var MSG_OK = 1;
+var canvas, context, tool, canvasOffset;
+
+//入口函数
+function xcanvas()
+{
+	try
+	{
+		//获取Canvas元素
+		canvas = document.getElementById('tomoe-canvas');
+		context = canvas.getContext('2d');
+	}
+	catch (e)
+	{
+		//alert("此浏览器不支持HTML5");
+		return;
+	}
+
+	context.lineWidth = 4;
+	context.lineCap = "round";
+	context.lineJoin = "round";
+	context.strokeStyle  = "orange";
+
+	canvasOffset = $('#tomoe-canvas').offset();
+
+	//初始化画笔
+    tool = new tool_pencil();
+
+	//添加mousedown, mousemove, mouseup, mouseout, mousecancel等事件
+	//同时支持触摸设备的touch事件
+	$('#tomoe-canvas').bind('vmousedown', ev_canvas);
+	$('#tomoe-canvas').bind('vmousemove', ev_canvas);
+	$('#tomoe-canvas').bind('vmouseup', ev_canvas);
+	$('#tomoe-canvas').bind('vmouseout', ev_canvas);
+	$('#tomoe-canvas').bind('vmousecancel', ev_canvas);
+	//防止网页滑动
+	$(document).bind('touchmove', function(e){e.preventDefault();})
+
+}
+
+//画笔类
+function tool_pencil ()
+{
+	var tool = this;
+	//是否在书写
+	this.isWriting = false;
+	//是否需要提交数据
+    this.needSubmit = false;
+
+	//mousedown事件
+	this.vmousedown = function (ev)
+	{
+		//开始路径
+		context.beginPath();
+		//不保留笔迹地移动（提笔）
+		context.moveTo(ev._x, ev._y);
+		//正在书写
+		tool.isWriting = true;
+	};
+
+	//mousemove事件
+	this.vmousemove = function (ev)
+	{
+		//正在书写
+		if (tool.isWriting == true)
+		{
+			//画直线
+			context.lineTo(ev._x, ev._y);
+			//显示笔迹
+			context.stroke();
+		}
+	};
+	
+	//mouseup事件
+	this.vmouseup = function (ev)
+	{
+		//正在书写
+		if (tool.isWriting = true)
+		{
+			//显示笔迹
+			tool.vmousemove(ev);
+			//停止书写
+			tool.isWriting = false;
+		}
+	};
+
+	//mouseout事件
+	this.vmouseout = function (ev)
+	{
+		//停止书写
+		tool.isWriting = false;
+	};
+
+	//mousecancel事件
+	this.vmousecancel = function (ev)
+	{
+		//停止书写
+		tool.isWriting = false;
+	};
+}
+
+//事件句柄
+function ev_canvas (ev)
+{
+	//取得位置
+	var pos = GetPosition(ev);
+	
+	//触发事件
+	var func = tool[ev.type];
+	if (func)
+	{
+		func(pos);
+	}
+}
+
 //获取事件的坐标
 function GetPosition(e)
 {
-	var pos = $('#tomoe-canvas').offset();
-	e._x = e.pageX - pos.left;
-	e._y = e.pageY - pos.top;
+	e._x = e.pageX - canvasOffset.left;
+	e._y = e.pageY - canvasOffset.top;
     return e;
 }
 
-
-	var canvas, context, tool;
-
-	function xcanvas()
+$(document).ready(function()
+{
+	//尝试初始化
+	xcanvas();
+	//初始化失败，浏览器不支持Canvas
+	if (!context)
 	{
-		try
-		{
-			// Find the canvas element.
-			canvas = document.getElementById('tomoe-canvas');
-		    context = canvas.getContext('2d');
-		}
-		catch (e)
-		{
-			//alert("此浏览器不支持HTML5");
-			return;
-		}
-
-		context.lineWidth = 4;
-		context.lineCap = "round";
-		context.lineJoin = "round";
-		context.strokeStyle  = "orange"; 
-
-		// Pencil tool instance.
-	    tool = new tool_pencil();
-
-		// Attach the mousedown, mousemove and mouseup event listeners.
-		$('#tomoe-canvas').bind('vmousedown', ev_canvas);
-		$('#tomoe-canvas').bind('vmousemove', ev_canvas);
-		$('#tomoe-canvas').bind('vmouseup', ev_canvas);
-		$('#tomoe-canvas').bind('vmouseout', ev_canvas);
-		//防止网页滑动
-		$(document).bind('touchmove', function(event){event.preventDefault();})
-		//document.body.addEventListener('touchmove',,false);
+		//加载兼容js脚本
+		$('<script />', {
+			type: 'text/javascript',
+			src: 'uuCanvas.js'
+		}).appendTo("head");
 	}
+});
 
-	// This painting tool works like a drawing pencil which tracks the mouse 
-	// movements.
-	function tool_pencil ()
-	{
-		var tool = this;
-		this.started = false;
-
-		// This is called when you start holding down the mouse button.
-		// This starts the pencil drawing.
-		this.vmousedown = function (ev)
-		{
-			context.beginPath();
-			context.moveTo(ev._x, ev._y);
-			tool.started = true;
-		};
-
-		// This function is called every time you move the mouse. Obviously, it only 
-		// draws if the tool.started state is set to true (when you are holding down 
-		// the mouse button).
-		this.vmousemove = function (ev)
-		{
-			if (tool.started)
-			{
-				context.lineTo(ev._x, ev._y);
-				context.stroke();
-			}
-		};
-
-		// This is called when you release the mouse button.
-		this.vmouseup = function (ev)
-		{
-			if (tool.started)
-			{
-				tool.vmousemove(ev);
-				tool.started = false;
-			}
-		};
-
-		// This is called when you release the mouse button.
-		this.vmouseout = function (ev)
-		{
-			if (tool.started)
-			{
-				//tool.mousemove(ev);
-				tool.started = false;
-			}
-		};
-  }
-
-  // The general-purpose event handler. This function just determines the mouse 
-  // position relative to the canvas element.
-	function ev_canvas (ev)
-	{
-		//取得位置
-	    var pos = GetPosition(ev);
-	
-		// Call the event handler of the tool.
-	    var func = tool[ev.type];
-		if (func)
-		{
-			func(pos);
-	    }
-	}
-
-
-	$(document).ready(function(){
-   xcanvas();
-	});
-	//AddEvent(window, 'load', function(){xcanvas();});
-
-
-      function draw(){
-        var canvas = document.getElementById('tomoe-canvas');
-		
-		
-        if (canvas.getContext){
-          var ctx = canvas.getContext('2d');
-		  var img = new Image();  
-   img.onload = function(){  
-   ctx.drawImage(img,0,0);  
-		        ctx.beginPath(); 
-	ctx.lineWidth = 4;
-	ctx.lineCap = "round";
-	ctx.lineJoin = "round";
-      ctx.moveTo(30,100);  
-      ctx.lineTo(70,66);  
-      ctx.lineTo(103,76);  
-      ctx.lineTo(170,15);  
-	  ctx.strokeStyle  = "orange";  
-      ctx.stroke();  
-	}  
-    img.src = 'http://www.zdic.net/pic/300/cn/1/8C08.gif';
-        }
-		else
-		{
-			alert("不支持Canvas");
-		}
-      }
     </script>
     <style type="text/css">
       canvas { border: 1px solid black; }
     </style>
   </head>
   <body>
-
     <canvas id="tomoe-canvas" width="300" height="300"></canvas>
-
   </body>
 </html>
