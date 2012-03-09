@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Canvas测试</title>
@@ -6,7 +6,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=500, initial-scale=1">
     <link rel="stylesheet" href="css/jquery.mobile.css" />
+    <!--[if lt IE 9]>
     <script type="text/javascript" src="js/uuCanvas.js"></script>
+    <![endif]-->
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/jquery.mobile.js"></script>
 
@@ -90,6 +92,7 @@ function xcanvas()
 	$('#tomoe-canvas').bind('vmousemove', ev_canvas);
 	$('#tomoe-canvas').bind('vmouseup', ev_canvas);
 	$('#tomoe-canvas').bind('vmouseout', ev_canvas);
+    $('#tomoe-canvas').bind('select', function(){e.preventDefault();});
 	//$('#tomoe-canvas').bind('vmousecancel', ev_canvas);
 	//防止网页滑动
 	$(document).bind('touchmove', function(e){e.preventDefault();})
@@ -184,13 +187,13 @@ $(document).ready(function()
 	//尝试初始化
 	xcanvas();
 	//初始化失败，浏览器不支持Canvas
-	if (!context)
+	if (typeof(uu) == "undefined" && !context)
 	{
 		//加载兼容js脚本
-		//$('<script />', {
-		//	type: 'text/javascript',
-		//	src: 'js/uuCanvas.js'
-		//}).appendTo("head");
+		var js = document.createElement('script');
+        js.setAttribute('type', 'text/javascript');
+        js.setAttribute('src', 'js/uuCanvas.js');
+        document.getElementsByTagName('head')[0].appendChild(js);
 		//$.getScript('js/uuCanvas.js');
 	}
 });
