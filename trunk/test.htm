@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=500, initial-scale=1">
     <link rel="stylesheet" href="css/jquery.mobile.css" />
-    <!--[if lt IE 9]>
+    <!--[if lt IE 5]>
     <script type="text/javascript" src="js/uuCanvas.js"></script>
     <![endif]-->
     <script type="text/javascript" src="js/jquery.js"></script>
@@ -86,14 +86,15 @@ function xcanvas()
 	//初始化画笔
     tool = new tool_pencil();
 
-	//添加mousedown, mousemove, mouseup, mouseout, mousecancel等事件
+	//添加mousedown, mousemove, mouseup, mouseout等事件
 	//同时支持触摸设备的touch事件
 	$('#tomoe-canvas').bind('vmousedown', ev_canvas);
 	$('#tomoe-canvas').bind('vmousemove', ev_canvas);
 	$('#tomoe-canvas').bind('vmouseup', ev_canvas);
 	$('#tomoe-canvas').bind('vmouseout', ev_canvas);
-    $('#tomoe-canvas').bind('select', function(){e.preventDefault();});
-	//$('#tomoe-canvas').bind('vmousecancel', ev_canvas);
+
+    //禁止选中绘图区
+    $('#tomoe-canvas').bind('select', function(e){return false;});
 	//防止网页滑动
 	$(document).bind('touchmove', function(e){e.preventDefault();})
 
@@ -136,7 +137,7 @@ function tool_pencil ()
 	this.vmouseup = function (ev)
 	{
 		//正在书写
-		if (tool.isWriting = true)
+		if (tool.isWriting == true)
 		{
 			//显示笔迹
 			tool.vmousemove(ev);
@@ -147,13 +148,6 @@ function tool_pencil ()
 
 	//mouseout事件
 	this.vmouseout = function (ev)
-	{
-		//停止书写
-		tool.isWriting = false;
-	};
-
-	//mousecancel事件
-	this.vmousecancel = function (ev)
 	{
 		//停止书写
 		tool.isWriting = false;
@@ -182,19 +176,43 @@ function GetPosition(e)
     return e;
 }
 
+//开始执行代码
 $(document).ready(function()
 {
 	//尝试初始化
 	xcanvas();
 	//初始化失败，浏览器不支持Canvas
-	if (typeof(uu) == "undefined" && !context)
+	if (!context)
 	{
 		//加载兼容js脚本
 		var js = document.createElement('script');
-        js.setAttribute('type', 'text/javascript');
+        js.type = 'text/javascript';
+        js.charset = 'utf-8';
+        if (document.uniqueID)
+        {
+            js.onreadystatechange = function()
+            {
+                if (/loaded|complete/.test(this.readyState))
+                {
+                    alert("IE");
+                    uu.canvas.init();
+                    //再次尝试初始化
+                    xcanvas();
+                }
+            };
+        }
+        else
+        {
+            js.onload = function()
+            {
+                alert("Other");
+                uu.canvas.init();
+                //再次尝试初始化
+                xcanvas();
+            };
+        }
         js.setAttribute('src', 'js/uuCanvas.js');
         document.getElementsByTagName('head')[0].appendChild(js);
-		//$.getScript('js/uuCanvas.js');
 	}
 });
 
