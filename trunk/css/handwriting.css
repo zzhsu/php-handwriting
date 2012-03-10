@@ -1,0 +1,16 @@
+/* 
+    Document   : handwriting
+    Created on : 2012-3-10, 16:02:45
+    Author     : TXK
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+#background{
+    width: 300px;
+    height: 300px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888;
+    background-color: aliceblue;
+}
