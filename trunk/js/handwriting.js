@@ -65,10 +65,10 @@ var Character = function (strokes)
         var minY = Number.MAX_VALUE;
         var maxY = -1;
 
-        for(var stroke_i in this.s)
+        for(var stroke_i = 0; stroke_i < this.s.length; stroke_i++)
         {
             var stroke = this.s[stroke_i];
-            for(var point_i in stroke.p)
+            for(var point_i=0; point_i < stroke.p.length; point_i++)
             {
                 var point = stroke.p[point_i];
                 maxX = ( point.x > maxX)? point.x: maxX;
@@ -81,6 +81,24 @@ var Character = function (strokes)
         this.top = minY;
         this.width = maxX-minX +1;
         this.height = maxY-minY +1;
+    };
+
+    //缩放
+    this.Resize = function( targetWidth, targetHeight)
+    {
+        var sourceWidth = (this.width == 0) ? 1 : this.width;
+        var sourceHeight = (this.height == 0) ? 1 : this.height;
+
+        for (var stroke_i = 0; stroke_i < this.s.length; stroke_i++)
+        {
+            var stroke = this.s[stroke_i];
+            for (var point_i =0; point_i< stroke.p.length; point_i++)
+            {
+                var point = stroke.p[point_i];
+                point.x = Math.round((point.x - this.left+1) * targetWidth / sourceWidth);
+                point.y = Math.round((point.y - this.top+1) * targetHeight /sourceHeight);
+            }
+        }
     };
 }
 
@@ -195,24 +213,20 @@ var tool_pencil =function ()
         //不缩放重绘
         this.Paint(writing, false);
     };
-    //缩放
-    this.Resize = function(writing, targetWidth, targetHeight)
-    {
 
-    };
     //绘图
     this.Paint = function(writing, scale)
     {
         if(scale == true)
         {
             //缩放到现在绘图区域大小
-            this.Resize(writing, canvas.width, canvas.height);
+            writing.Resize(canvas.width, canvas.height);
         }
 
-        for(var stroke_i in writing.s)
+        for(var stroke_i =0; stroke_i < writing.s.length; stroke_i++)
         {
             var stroke = writing.s[stroke_i];
-            for (var point_i in stroke.p)
+            for (var point_i =0; point_i < stroke.p.length; point_i++)
             {
                 var point = stroke.p[point_i];
                 if (point_i == 0)
