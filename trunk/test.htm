@@ -194,7 +194,6 @@ $(document).ready(function()
             {
                 if (/loaded|complete/.test(this.readyState))
                 {
-                    alert("IE");
                     uu.canvas.init();
                     //再次尝试初始化
                     xcanvas();
@@ -205,7 +204,6 @@ $(document).ready(function()
         {
             js.onload = function()
             {
-                alert("Other");
                 uu.canvas.init();
                 //再次尝试初始化
                 xcanvas();
