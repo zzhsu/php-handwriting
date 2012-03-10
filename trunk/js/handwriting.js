@@ -26,20 +26,39 @@ var Character = function (strokes)
     }
 
     //添加笔画
-    this.addStroke = function()
+    this.AddStroke = function()
     {
         var stroke = new Stroke();
         this.s.push(stroke);
         return (stroke);
-    }
+    };
+
     //添加点
-    this.addXY = function(x,y)
+    this.AddXY = function(x,y)
     {
-        this.s[this.s.length-1].addXY(x,y);
+        this.s[this.s.length-1].AddXY(x,y);
+    };
+
+    //撤销
+    this.Undo = function()
+    {
+        if(this.s.length > 0)
+        {
+            this.s.pop();
+        }
+    };
+    //清除
+    this.Clear = function()
+    {
+        this.s = new Array();
+        this.width = 0;
+        this.height = 0;
+        this.left = 0;
+        this.top = 0;
     }
 
     //计算长宽位置
-    this.makePosition = function()
+    this.MakePosition = function()
     {
         var minX = Number.MAX_VALUE;
         var maxX = -1;
@@ -62,7 +81,7 @@ var Character = function (strokes)
         this.top = minY;
         this.width = maxX-minX +1;
         this.height = maxY-minY +1;
-    }
+    };
 }
 
 //笔画类
@@ -76,18 +95,18 @@ var Stroke = function (points)
     }
 
     //加入点（坐标方式）
-    this.addXY = function(x, y)
+    this.AddXY = function(x, y)
     {
         this.p.push(new Point(x, y));
-    }
+    };
 
     //加入点
-    this.addPoint = function()
+    this.AddPoint = function(x, y)
     {
-        var point = new Point();
+        var point = new Point(x,y);
         this.p.push(point);
         return point;
-    }
+    };
 }
 
 //点类
@@ -120,7 +139,7 @@ var tool_pencil =function ()
         //不保留笔迹地移动（提笔）
         context.moveTo(ev._x, ev._y);
         //添加笔画
-        writing.addStroke();
+        writing.AddStroke();
         //正在书写
         tool.isWriting = true;
     };
@@ -136,7 +155,7 @@ var tool_pencil =function ()
             //显示笔迹
             context.stroke();
             //最后的笔画添加点
-            writing.addXY(ev._x, ev._y);
+            writing.AddXY(ev._x, ev._y);
         }
     };
 
@@ -150,16 +169,76 @@ var tool_pencil =function ()
             tool.vmousemove(ev);
             //停止书写
             tool.isWriting = false;
+            //计算位置
+            writing.MakePosition();
         }
     };
 
     //mouseout事件
     this.vmouseout = function ()
     {
-        //停止书写
-        tool.isWriting = false;
-        writing.makePosition();
+        //正在书写
+        if (tool.isWriting == true)
+        {
+            //停止书写
+            tool.isWriting = false;
+            //计算位置
+            writing.MakePosition();
+        }
     };
+
+    //重绘（撤销事件）
+    this.Repaint = function()
+    {
+        //清除
+        this.Clear();
+        //不缩放重绘
+        this.Paint(writing, false);
+    };
+    //缩放
+    this.Resize = function(writing, targetWidth, targetHeight)
+    {
+
+    };
+    //绘图
+    this.Paint = function(writing, scale)
+    {
+        if(scale == true)
+        {
+            //缩放到现在绘图区域大小
+            this.Resize(writing, canvas.width, canvas.height);
+        }
+
+        for(var stroke_i in writing.s)
+        {
+            var stroke = writing.s[stroke_i];
+            for (var point_i in stroke.p)
+            {
+                var point = stroke.p[point_i];
+                if (point_i == 0)
+                {
+                    //开始路径
+                    context.beginPath();
+                    //不保留笔迹地移动（提笔）
+                    context.moveTo(point.x, point.y);
+                }
+                else
+                {
+                    //画直线
+                    context.lineTo(point.x, point.y);
+                }
+            }
+            //显示笔迹
+            context.stroke();
+        }
+    };
+
+
+    //清除事件
+    this.Clear = function()
+    {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    }
 }
 
 //end 类声明
@@ -198,7 +277,16 @@ function xcanvas()
     $('#writing-canvas').bind('vmousemove', ev_canvas);
     $('#writing-canvas').bind('vmouseup', ev_canvas);
     $('#writing-canvas').bind('vmouseout', ev_canvas);
-
+    //“撤销”按钮事件
+    $('#undo-button').bind('click', function(){
+        writing.Undo();
+        tool.Repaint();
+    });
+    //“清除”按钮事件
+    $('#clear-button').bind('click', function(){
+        writing.Clear();
+        tool.Clear();
+    });
     //禁止选中绘图区
     $('#writing-canvas').bind('select', function(){
         return false;
