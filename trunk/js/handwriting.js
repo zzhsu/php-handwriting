@@ -9,6 +9,7 @@ var TRAINTYPE_RANDOM = 5;
 var MSG_OK = 1;
 var canvas, context, tool, canvasOffset;
 var writing; //笔迹
+var result; //结果类
 
 //类声明
 //字符类
@@ -55,7 +56,7 @@ var Character = function (strokes)
         this.height = 0;
         this.left = 0;
         this.top = 0;
-    }
+    };
 
     //计算长宽位置
     this.MakePosition = function()
@@ -100,6 +101,33 @@ var Character = function (strokes)
             }
         }
     };
+    
+    var SendWriting = function ()
+    {
+        if(this.s.length >0)
+        {
+            var para = "type=" + TYPE_RECOGNIZE;
+            para += "&c=" + $.toJSON(this);
+            var self = this;
+            //this.showMsg("正在提交数据…");
+            $.post('php/handwriting.php',
+                {
+                    type: TYPE_RECOGNIZE,
+                    c: $.toJSON(this)
+                },
+                function (data)
+                {
+                    if ($.evalJSON( data ))
+                    {
+                        
+                    }
+                    //显示候选字
+                    result.ShowCandidate();
+                }
+            );
+        //this.getXmlHttp("php/handwriting.php", para, self.callback, "showResult");
+        }
+    };
 }
 
 //笔画类
@@ -141,13 +169,15 @@ var Point = function (x, y)
 }
 
 //画笔类
-var tool_pencil =function ()
+var Pencil =function ()
 {
     var tool = this;
     //是否在书写
     this.isWriting = false;
     //是否需要提交数据
     this.needSubmit = false;
+    //识别模式
+    this.mode = TYPE_RECOGNIZE
 
     //mousedown事件
     this.vmousedown = function (ev)
@@ -189,6 +219,11 @@ var tool_pencil =function ()
             tool.isWriting = false;
             //计算位置
             writing.MakePosition();
+            //识别模式
+            if(this.mode == TYPE_RECOGNIZE)
+            {
+                writing.SendWriting();
+            }
         }
     };
 
@@ -255,6 +290,11 @@ var tool_pencil =function ()
     }
 }
 
+var Result = function()
+{
+    this.ShowCandidate = function ()
+    {}
+}
 //end 类声明
 
 
@@ -265,8 +305,8 @@ function xcanvas()
     try
     {
         //获取Canvas元素
-        canvasOffset = $('#writing-canvas').offset();
         canvas = document.getElementById('writing-canvas');
+        canvasOffset = $(canvas).offset();
         context = canvas.getContext('2d');
     }
     catch (e)
@@ -281,9 +321,11 @@ function xcanvas()
     context.strokeStyle  = "orange";
 
     //初始化画笔
-    tool = new tool_pencil();
+    tool = new Pencil();
     //初始化笔迹
     writing = new Character();
+    //初始化结果类
+    result = new Result();
 
     //添加mousedown, mousemove, mouseup, mouseout等事件
     //同时支持触摸设备的touch事件
@@ -308,7 +350,9 @@ function xcanvas()
     //防止网页滑动
     $(document).bind('touchmove', function(e){
         e.preventDefault();
-    })
+        $.mobile.silentScroll(0);
+        return false;
+    });
 
 }
 
