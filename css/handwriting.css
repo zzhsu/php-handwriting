@@ -13,4 +13,38 @@
     border-width: 1px;
     border-color: #888;
     background-color: aliceblue;
+    border-collapse: collapse;
+}
+
+#main-table {
+    margin-left: auto;
+    margin-right: auto;
+    border-width: 0px;
+}
+
+#main-table td{
+    vertical-align: top;
+}
+
+#result-area {
+    display: block;
+    float:right;
+    width: 140px;
+    height: 290px;
+    margin-left: 2px;
+    padding: 5px;
+    background-color: seashell;
+    border-collapse: collapse;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888;
+}
+
+.result-list li{
+    float: left; 
+    width: 50%;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
 }

@@ -17,11 +17,22 @@
     </head>
     <body>
         <input id="result-text" type=text size=40 />
+        <table id="main-table">
+            <tr>
+                <td>
+                    <div id="background">
+                        <canvas id="writing-canvas" width="300" height="300"></canvas>
+                    </div>
+                </td>
+                <td>
+                    <div id="result-area"></div>
+                </td>
+            </tr>
+        </table>
 
-        <div id="background">
-            <canvas id="writing-canvas" width="300" height="300"></canvas>
-        </div>
         <input id="undo-button" type="button" value="撤销" />
         <input id="clear-button" type="button" value="清除" />
+        <div id="msg-area"></div>
+        <div id="debug-area">用于调试，平时并不显示出来。</div>
     </body>
 </html>

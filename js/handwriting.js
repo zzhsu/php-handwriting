@@ -15,6 +15,7 @@ var result; //结果类
 //字符类
 var Character = function (strokes)
 {
+    var self = this;
     this.s = new Array();
     this.width = 0;
     this.height = 0;
@@ -102,28 +103,31 @@ var Character = function (strokes)
         }
     };
     
-    var SendWriting = function ()
+    this.SendWriting = function ()
     {
         if(this.s.length >0)
         {
-            var para = "type=" + TYPE_RECOGNIZE;
-            para += "&c=" + $.toJSON(this);
-            var self = this;
-            //this.showMsg("正在提交数据…");
+            //显示错误文字
+            result.ShowMsg('正在提交数据…');
             $.post('php/handwriting.php',
+            {
+                type: TYPE_RECOGNIZE,
+                c: $.toJSON(this)
+            },
+            function (data)
+            {
+                try
                 {
-                    type: TYPE_RECOGNIZE,
-                    c: $.toJSON(this)
-                },
-                function (data)
-                {
-                    if ($.evalJSON( data ))
-                    {
-                        
-                    }
+                    var obj = $.parseJSON( data );
                     //显示候选字
-                    result.ShowCandidate();
+                    result.ShowCandidate(obj);
                 }
+                catch (err)
+                {
+                    //显示错误文字
+                    result.ShowMsg(data);
+                }
+            }
             );
         //this.getXmlHttp("php/handwriting.php", para, self.callback, "showResult");
         }
@@ -171,7 +175,7 @@ var Point = function (x, y)
 //画笔类
 var Pencil =function ()
 {
-    var tool = this;
+    var self = this;
     //是否在书写
     this.isWriting = false;
     //是否需要提交数据
@@ -189,14 +193,14 @@ var Pencil =function ()
         //添加笔画
         writing.AddStroke();
         //正在书写
-        tool.isWriting = true;
+        self.isWriting = true;
     };
 
     //mousemove事件
     this.vmousemove = function (ev)
     {
         //正在书写
-        if (tool.isWriting == true)
+        if (self.isWriting == true)
         {
             //画直线
             context.lineTo(ev._x, ev._y);
@@ -211,16 +215,16 @@ var Pencil =function ()
     this.vmouseup = function (ev)
     {
         //正在书写
-        if (tool.isWriting == true)
+        if (self.isWriting == true)
         {
             //显示笔迹
-            tool.vmousemove(ev);
+            self.vmousemove(ev);
             //停止书写
-            tool.isWriting = false;
+            self.isWriting = false;
             //计算位置
             writing.MakePosition();
             //识别模式
-            if(this.mode == TYPE_RECOGNIZE)
+            if(self.mode == TYPE_RECOGNIZE)
             {
                 writing.SendWriting();
             }
@@ -231,10 +235,10 @@ var Pencil =function ()
     this.vmouseout = function ()
     {
         //正在书写
-        if (tool.isWriting == true)
+        if (self.isWriting == true)
         {
             //停止书写
-            tool.isWriting = false;
+            self.isWriting = false;
             //计算位置
             writing.MakePosition();
         }
@@ -292,8 +296,52 @@ var Pencil =function ()
 
 var Result = function()
 {
-    this.ShowCandidate = function ()
-    {}
+    var self = this;
+    //显示候选字
+    this.ShowCandidate = function (obj)
+    {
+
+        if( obj.msgno == MSG_OK)
+        {
+            //显示并清除候选字区域
+            $('#result-area').css('display','block').html('');
+            //显示信息
+            this.ShowMsg('完成');
+        
+            var ui =$('<ui />').addClass('result-list');
+        
+            for(var i = 0; i < obj.res.length; i++)
+            {
+                var character = obj.res[i];
+                var li = $('<li />').text(character.ch).addClass('result-char');
+                li.bind('click', function(){
+                    $('#result-text').val($('#result-text').val()+$(this).text());
+                });
+                ui.append(li);
+            }
+            $('#result-area').append(ui);
+        
+            //用于调试
+            if(obj.debug)
+            {
+                this.ShowDebug(obj.debug);
+            }    
+        }
+        else
+        {
+            this.ShowMsg(obj.msg);
+        }
+    };
+    //显示结果
+    this.ShowMsg = function(msg)
+    {
+        $('#msg-area').html(msg);
+    }
+    //显示调试信息
+    this.ShowDebug = function(msg)
+    {
+        $('#debug-area').html(msg);
+    }
 }
 //end 类声明
 
