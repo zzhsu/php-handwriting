@@ -186,16 +186,13 @@ var Pencil =function ()
     //mousedown事件
     this.vmousedown = function (ev)
     {
-            //防止网页滑动
+        //防止网页滑动
         $(document).bind('touchmove', function(e)
         {
             e.preventDefault();
             //$.mobile.silentScroll(0);
             return false;
         });
-
-        //绑定mousemove事件
-        $(canvas).bind('vmousemove', ev_canvas);
 
         //开始路径
         context.beginPath();
@@ -225,9 +222,6 @@ var Pencil =function ()
     //mouseup事件
     this.vmouseup = function (ev)
     {
-        //解除mousemove事件
-        $(canvas).unbind('vmousemove');
-
         //正在书写
         if (self.isWriting == true)
         {
@@ -242,15 +236,15 @@ var Pencil =function ()
             {
                 writing.SendWriting();
             }
+            //允许网页滑动
+            $(document).unbind('touchmove');
         }
+
     };
 
     //mouseout事件
     this.vmouseout = function ()
     {
-        //解除mousemove事件
-        $(canvas).unbind('vmousemove');
-
         //正在书写
         if (self.isWriting == true)
         {
@@ -258,7 +252,10 @@ var Pencil =function ()
             self.isWriting = false;
             //计算位置
             writing.MakePosition();
+            //允许网页滑动
+            $(document).unbind('touchmove');
         }
+
     };
 
     //重绘（撤销事件）
@@ -392,9 +389,10 @@ function xcanvas()
     //初始化结果类
     result = new Result();
 
-    //添加mousedown, mouseup, mouseout等事件
+    //添加mousedown, mousemove, mouseup, mouseout等事件
     //同时支持触摸设备的touch事件
     $(canvas).bind('vmousedown', ev_canvas);
+    $(canvas).bind('vmousemove', ev_canvas);
     $(canvas).bind('vmouseup', ev_canvas);
     $(canvas).bind('vmouseout', ev_canvas);
     //“撤销”按钮事件
@@ -442,7 +440,7 @@ $(document).ready(function()
     $(document).bind('mobileinit', function()
     {
         $.mobile.loadingMessage = false;
-        $.mobile.metaViewportContent = 'width=700, initial-scale=1';
+        $.mobile.metaViewportContent = 'width=device-width, initial-scale=1';
     });
     //尝试初始化
     xcanvas();
