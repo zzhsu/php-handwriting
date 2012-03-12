@@ -444,7 +444,7 @@ $(document).ready(function()
     $(document).bind('mobileinit', function()
     {
         $.mobile.loadingMessage = false;
-        $.mobile.metaViewportContent = 'width=650';
+        $.mobile.metaViewportContent = 'width=480';
     });
     //尝试初始化
     xcanvas();
