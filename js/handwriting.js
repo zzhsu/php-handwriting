@@ -172,7 +172,7 @@ var Point = function (x, y)
 }
 
 //画笔类
-var Pencil =function ()
+var Pencil = function ()
 {
     var self = this;
     //是否在书写
@@ -313,21 +313,22 @@ var Result = function()
     //显示候选字
     this.ShowCandidate = function (obj)
     {
-
+        //成功完成
         if( obj.msgno == MSG_OK)
         {
-            //显示并清除候选字区域
-            $('#result-area').css('display','block').html('');
+            //清除候选字区域
+            $('#result-area').html('');
             //显示信息
             this.ShowMsg('完成');
-
+            //新建ui元素
             var ui =$('<ui />').addClass('result-list');
 
             for(var i = 0; i < obj.res.length; i++)
             {
                 var character = obj.res[i];
                 var li = $('<li />').text(character.ch).addClass('result-char');
-                li.bind('click', function(){
+                li.bind('click', function()
+                {
                     $('#result-text').val($('#result-text').val()+$(this).text());
                 });
                 ui.append(li);
