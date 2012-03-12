@@ -1,10 +1,16 @@
-/* 
+/*
     Document   : handwriting
     Created on : 2012-3-10, 16:02:45
     Author     : TXK
     Description:
         Purpose of the stylesheet follows.
 */
+
+#page{
+    width: 470px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 #background{
     width: 300px;
@@ -28,7 +34,7 @@
 
 #result-area {
     display: block;
-    float:right;
+    float: right;
     width: 140px;
     height: 290px;
     margin-left: 2px;
@@ -41,7 +47,7 @@
 }
 
 .result-list li{
-    float: left; 
+    float: left;
     width: 50%;
     cursor: pointer;
     margin: 0;
