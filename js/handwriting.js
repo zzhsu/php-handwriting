@@ -186,6 +186,17 @@ var Pencil =function ()
     //mousedown事件
     this.vmousedown = function (ev)
     {
+            //防止网页滑动
+        $(document).bind('touchmove', function(e)
+        {
+            e.preventDefault();
+            //$.mobile.silentScroll(0);
+            return false;
+        });
+
+        //绑定mousemove事件
+        $(canvas).bind('vmousemove', ev_canvas);
+
         //开始路径
         context.beginPath();
         //不保留笔迹地移动（提笔）
@@ -214,6 +225,9 @@ var Pencil =function ()
     //mouseup事件
     this.vmouseup = function (ev)
     {
+        //解除mousemove事件
+        $(canvas).unbind('vmousemove');
+
         //正在书写
         if (self.isWriting == true)
         {
@@ -234,6 +248,9 @@ var Pencil =function ()
     //mouseout事件
     this.vmouseout = function ()
     {
+        //解除mousemove事件
+        $(canvas).unbind('vmousemove');
+
         //正在书写
         if (self.isWriting == true)
         {
@@ -375,12 +392,11 @@ function xcanvas()
     //初始化结果类
     result = new Result();
 
-    //添加mousedown, mousemove, mouseup, mouseout等事件
+    //添加mousedown, mouseup, mouseout等事件
     //同时支持触摸设备的touch事件
-    $('#writing-canvas').bind('vmousedown', ev_canvas);
-    $('#writing-canvas').bind('vmousemove', ev_canvas);
-    $('#writing-canvas').bind('vmouseup', ev_canvas);
-    $('#writing-canvas').bind('vmouseout', ev_canvas);
+    $(canvas).bind('vmousedown', ev_canvas);
+    $(canvas).bind('vmouseup', ev_canvas);
+    $(canvas).bind('vmouseout', ev_canvas);
     //“撤销”按钮事件
     $('#undo-button').bind('click', function(){
         writing.Undo();
@@ -395,13 +411,6 @@ function xcanvas()
     $('#writing-canvas').bind('select', function(){
         return false;
     });
-    //防止网页滑动
-    $(document).bind('touchmove', function(e){
-        e.preventDefault();
-        $.mobile.silentScroll(0);
-        return false;
-    });
-
 }
 
 //事件句柄
@@ -429,6 +438,12 @@ function GetPosition(e)
 //开始执行代码
 $(document).ready(function()
 {
+    //移动设备初始化
+    $(document).bind('mobileinit', function()
+    {
+        $.mobile.loadingMessage = false;
+        $.mobile.metaViewportContent = 'width=700, initial-scale=1';
+    });
     //尝试初始化
     xcanvas();
     //初始化失败，浏览器不支持Canvas
@@ -464,8 +479,3 @@ $(document).ready(function()
     }
 });
 
-//移动设备初始化
-$(document).bind('mobileinit', function(){
-  $.mobile.loadingMessage = false;
-  $.mobile.metaViewportContent = 'width=650, initial-scale=1';
-});
