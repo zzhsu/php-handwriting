@@ -127,9 +127,8 @@ var Character = function (strokes)
                     //显示错误文字
                     result.ShowMsg(data);
                 }
-            }
-            );
-        //this.getXmlHttp("php/handwriting.php", para, self.callback, "showResult");
+            });
+
         }
     };
 }
@@ -395,20 +394,25 @@ function xcanvas()
     $(canvas).bind('vmousemove', ev_canvas);
     $(canvas).bind('vmouseup', ev_canvas);
     $(canvas).bind('vmouseout', ev_canvas);
+
+        //禁止选中绘图区
+    $(canvas).bind('select', function()
+    {
+        return false;
+    });
     //“撤销”按钮事件
-    $('#undo-button').bind('click', function(){
+    $('#undo-button').bind('click', function()
+    {
         writing.Undo();
         tool.Repaint();
     });
     //“清除”按钮事件
-    $('#clear-button').bind('click', function(){
+    $('#clear-button').bind('click', function()
+    {
         writing.Clear();
         tool.Clear();
     });
-    //禁止选中绘图区
-    $('#writing-canvas').bind('select', function(){
-        return false;
-    });
+
 }
 
 //事件句柄
@@ -440,7 +444,7 @@ $(document).ready(function()
     $(document).bind('mobileinit', function()
     {
         $.mobile.loadingMessage = false;
-        $.mobile.metaViewportContent = 'width=device-width, initial-scale=1';
+        $.mobile.metaViewportContent = 'width=650';
     });
     //尝试初始化
     xcanvas();
