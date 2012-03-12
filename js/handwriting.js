@@ -102,7 +102,7 @@ var Character = function (strokes)
             }
         }
     };
-    
+
     this.SendWriting = function ()
     {
         if(this.s.length >0)
@@ -307,9 +307,9 @@ var Result = function()
             $('#result-area').css('display','block').html('');
             //显示信息
             this.ShowMsg('完成');
-        
+
             var ui =$('<ui />').addClass('result-list');
-        
+
             for(var i = 0; i < obj.res.length; i++)
             {
                 var character = obj.res[i];
@@ -320,12 +320,12 @@ var Result = function()
                 ui.append(li);
             }
             $('#result-area').append(ui);
-        
+
             //用于调试
             if(obj.debug)
             {
                 this.ShowDebug(obj.debug);
-            }    
+            }
         }
         else
         {
@@ -464,3 +464,8 @@ $(document).ready(function()
     }
 });
 
+//移动设备初始化
+$(document).bind('mobileinit', function(){
+  $.mobile.loadingMessage = false;
+  $.mobile.metaViewportContent = 'width=650, initial-scale=1';
+});
