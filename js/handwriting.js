@@ -8,8 +8,9 @@ var TRAINTYPE_UNICODE = 4;
 var TRAINTYPE_RANDOM = 5;
 var MSG_OK = 1;
 var canvas, context, tool, canvasOffset;
-var writing; //笔迹
-var result; //结果类
+var writing; //笔迹对象
+var result; //结果对象
+var intervalProcess = null; //定时对象
 
 //类声明
 //字符类
@@ -47,6 +48,12 @@ var Character = function (strokes)
         if(this.s.length > 0)
         {
             this.s.pop();
+             //识别模式
+            if(tool.mode == TYPE_RECOGNIZE)
+            {
+                //准备提交笔迹
+                this.ReadyToSendWriting();
+            }
         }
     };
     //清除
@@ -103,12 +110,45 @@ var Character = function (strokes)
         }
     };
 
+    //发送笔迹前的准备
+    this.ReadyToSendWriting = function ()
+    {
+        //需要提交
+        tool.needSubmit = true;
+        //正在等待结果
+        if (tool.isWaiting == true)
+            {
+                if(intervalProcess == null)
+                {
+                 //每秒钟检查提交池
+                intervalProcess = setInterval(CheckSubmitPool, 1000);
+                }
+            }
+            //提交池空闲
+            else
+                {
+                    //提交笔迹
+                    this.SendWriting();
+                    //不需要提交
+                    tool.needSubmit = false;
+                    //清除定时查询
+                    clearInterval(intervalProcess);
+    intervalProcess = null;
+                }
+    };
+
+    //发送笔迹
     this.SendWriting = function ()
     {
         if(this.s.length >0)
         {
-            //显示错误文字
+            //等待结果
+            tool.isWaiting = true;
+            
+            //显示信息
             result.ShowMsg('正在提交数据…');
+            
+            //提交数据
             $.post('php/handwriting.php',
             {
                 type: TYPE_RECOGNIZE,
@@ -118,7 +158,10 @@ var Character = function (strokes)
             {
                 try
                 {
+                   //转换成对象
                     var obj = $.parseJSON( data );
+                     //空闲状态
+                    tool.isWaiting = false;
                     //显示候选字
                     result.ShowCandidate(obj);
                 }
@@ -179,6 +222,8 @@ var Pencil = function ()
     this.isWriting = false;
     //是否需要提交数据
     this.needSubmit = false;
+    //是否正在等待结果
+    this.isWaiting = false;
     //识别模式
     this.mode = TYPE_RECOGNIZE
 
@@ -233,7 +278,8 @@ var Pencil = function ()
             //识别模式
             if(self.mode == TYPE_RECOGNIZE)
             {
-                writing.SendWriting();
+                //准备提交笔迹
+                writing.ReadyToSendWriting();
             }
             //允许网页滑动
             $(document).unbind('touchmove');
@@ -251,6 +297,12 @@ var Pencil = function ()
             self.isWriting = false;
             //计算位置
             writing.MakePosition();
+             //识别模式
+            if(self.mode == TYPE_RECOGNIZE)
+            {
+                //准备提交笔迹
+                writing.ReadyToSendWriting();
+            }
             //允许网页滑动
             $(document).unbind('touchmove');
         }
@@ -429,6 +481,22 @@ function ev_canvas (ev)
         func(pos);
     }
 }
+
+//检查提交池
+function CheckSubmitPool()
+{
+    //如需要提交，且现在空闲
+     if((tool.needSubmit == true)
+         && (tool.isWaiting == false)
+        && (tool.isWriting == false))
+        {
+                //准备提交
+                writing.ReadyToSendWriting();
+
+        }
+
+}
+
 
 //获取事件的坐标
 function GetPosition(e)
