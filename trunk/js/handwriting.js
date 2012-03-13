@@ -48,7 +48,7 @@ var Character = function (strokes)
         if(this.s.length > 0)
         {
             this.s.pop();
-             //识别模式
+            //识别模式
             if(tool.mode == TYPE_RECOGNIZE)
             {
                 //准备提交笔迹
@@ -117,24 +117,24 @@ var Character = function (strokes)
         tool.needSubmit = true;
         //正在等待结果
         if (tool.isWaiting == true)
+        {
+            if(intervalProcess == null)
             {
-                if(intervalProcess == null)
-                {
-                 //每秒钟检查提交池
-                intervalProcess = setInterval(CheckSubmitPool, 1000);
-                }
+                //每秒钟检查提交池
+                intervalProcess = setInterval('CheckSubmitPool()', 1000);
             }
-            //提交池空闲
-            else
-                {
-                    //提交笔迹
-                    this.SendWriting();
-                    //不需要提交
-                    tool.needSubmit = false;
-                    //清除定时查询
-                    clearInterval(intervalProcess);
-    intervalProcess = null;
-                }
+        }
+        //提交池空闲
+        else
+        {
+            //提交笔迹
+            this.SendWriting();
+            //不需要提交
+            tool.needSubmit = false;
+            //清除定时查询
+            clearInterval(intervalProcess);
+            intervalProcess = null;
+        }
     };
 
     //发送笔迹
@@ -158,9 +158,9 @@ var Character = function (strokes)
             {
                 try
                 {
-                   //转换成对象
+                    //转换成对象
                     var obj = $.parseJSON( data );
-                     //空闲状态
+                    //空闲状态
                     tool.isWaiting = false;
                     //显示候选字
                     result.ShowCandidate(obj);
@@ -193,9 +193,8 @@ var Stroke = function (points)
     };
 
     //加入点
-    this.AddPoint = function(x, y)
+    this.AddPoint = function(point)
     {
-        var point = new Point(x,y);
         this.p.push(point);
         return point;
     };
@@ -234,7 +233,6 @@ var Pencil = function ()
         $(document).bind('touchmove', function(e)
         {
             e.preventDefault();
-            //$.mobile.silentScroll(0);
             return false;
         });
 
@@ -243,7 +241,8 @@ var Pencil = function ()
         //不保留笔迹地移动（提笔）
         context.moveTo(ev._x, ev._y);
         //添加笔画
-        writing.AddStroke();
+        writing.AddStroke().AddXY(ev._x,ev._y);
+        
         //正在书写
         self.isWriting = true;
     };
@@ -297,7 +296,7 @@ var Pencil = function ()
             self.isWriting = false;
             //计算位置
             writing.MakePosition();
-             //识别模式
+            //识别模式
             if(self.mode == TYPE_RECOGNIZE)
             {
                 //准备提交笔迹
@@ -448,7 +447,7 @@ function xcanvas()
     $(canvas).bind('vmouseup', ev_canvas);
     $(canvas).bind('vmouseout', ev_canvas);
 
-        //禁止选中绘图区
+    //禁止选中绘图区
     $(canvas).bind('select', function()
     {
         return false;
@@ -486,15 +485,15 @@ function ev_canvas (ev)
 function CheckSubmitPool()
 {
     //如需要提交，且现在空闲
-     if((tool.needSubmit == true)
-         && (tool.isWaiting == false)
-        && (tool.isWriting == false))
+    if(
+        (tool.needSubmit == true)
+        && (tool.isWaiting == false)
+        && (tool.isWriting == false)
+        )
         {
-                //准备提交
-                writing.ReadyToSendWriting();
-
-        }
-
+        //准备提交
+        writing.ReadyToSendWriting();
+    }
 }
 
 
