@@ -144,10 +144,10 @@ var Character = function (strokes)
         {
             //等待结果
             tool.isWaiting = true;
-            
+
             //显示信息
             result.ShowMsg('正在提交数据…');
-            
+
             //提交数据
             $.post('php/handwriting.php',
             {
@@ -229,20 +229,13 @@ var Pencil = function ()
     //mousedown事件
     this.vmousedown = function (ev)
     {
-        //防止网页滑动
-        $(document).bind('touchmove', function(e)
-        {
-            e.preventDefault();
-            return false;
-        });
-
         //开始路径
         context.beginPath();
         //不保留笔迹地移动（提笔）
         context.moveTo(ev._x, ev._y);
         //添加笔画
-        writing.AddStroke().AddXY(ev._x,ev._y);
-        
+        writing.AddStroke().AddXY(ev._x, ev._y);
+
         //正在书写
         self.isWriting = true;
     };
@@ -253,12 +246,16 @@ var Pencil = function ()
         //正在书写
         if (self.isWriting == true)
         {
+            //防止网页滑动
+ev.preventDefault();
+
             //画直线
             context.lineTo(ev._x, ev._y);
             //显示笔迹
             context.stroke();
             //最后的笔画添加点
             writing.AddXY(ev._x, ev._y);
+            return false;
         }
     };
 
@@ -280,8 +277,6 @@ var Pencil = function ()
                 //准备提交笔迹
                 writing.ReadyToSendWriting();
             }
-            //允许网页滑动
-            $(document).unbind('touchmove');
         }
 
     };
@@ -302,8 +297,6 @@ var Pencil = function ()
                 //准备提交笔迹
                 writing.ReadyToSendWriting();
             }
-            //允许网页滑动
-            $(document).unbind('touchmove');
         }
 
     };
@@ -489,8 +482,8 @@ function CheckSubmitPool()
         (tool.needSubmit == true)
         && (tool.isWaiting == false)
         && (tool.isWriting == false)
-        )
-        {
+    )
+    {
         //准备提交
         writing.ReadyToSendWriting();
     }
