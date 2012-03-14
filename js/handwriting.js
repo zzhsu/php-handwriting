@@ -243,19 +243,17 @@ var Pencil = function ()
     //mousemove事件
     this.vmousemove = function (ev)
     {
+        //防止网页滑动
+        ev.preventDefault();
         //正在书写
         if (self.isWriting == true)
         {
-            //防止网页滑动
-ev.preventDefault();
-
             //画直线
             context.lineTo(ev._x, ev._y);
             //显示笔迹
             context.stroke();
             //最后的笔画添加点
             writing.AddXY(ev._x, ev._y);
-            return false;
         }
     };
 
@@ -482,8 +480,8 @@ function CheckSubmitPool()
         (tool.needSubmit == true)
         && (tool.isWaiting == false)
         && (tool.isWriting == false)
-    )
-    {
+        )
+        {
         //准备提交
         writing.ReadyToSendWriting();
     }
