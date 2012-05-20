@@ -1,47 +1,34 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
     <head>
-        <title>Ajax手写识别</title>
+        <title>在线手写输入法</title>
+        <meta charset="utf-8" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <!-- <meta http-equiv="X-UA-Compatible" content="chrome=1"> -->
-        <link rel=stylesheet href="css/tomoe.css" media=all>
-        <script type="text/javascript" src="js/json2.js"></script>
-        <script type="text/javascript" src="js/tomoe.js"></script>
-        <script>
-        mode = TYPE_RECOGNIZE;
-            function showdebug(str)
-            {
-                var debug = document.getElementById("debug");
-                debug.innerHTML += str +"<br>";
-            }
+        <meta name="viewport" content="width=480">
+        <link rel="stylesheet" href="css/jquery.mobile.css" />
+        <link rel="stylesheet" href ="css/handwriting.css"/>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.json.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile.js"></script>
+        <script type="text/javascript" src="js/handwriting.js"></script>
+        <script type="text/javascript">
 
-            function sendData()
-            {
-                tomoe.sendStroke();
-            }
         </script>
     </head>
     <body>
-        <table class="tomoe-table">
-            <tr>
-                <td valign="top">
-                    <div id="tomoe-canvas" class="tomoe-canvas">
-                        <span id="tomoe-point" class="tomoe-dot"></span>
-                    </div>
-                </td>
-                <td><div id="tomoe-result" class="tomoe-result"></div></td>
-            </tr>
-        </table>
-        <table class="tomoe-table">
-            <tr>
-                <td><input id="tomoe-text" type=text size=40 />
-                    <input id="tomoe-undo-button" type="button" value="撤销" />
-                    <input id="tomoe-clear-button" type="button" value="清除" /><br />
-                   <!-- <input id="tomoe-read-button" type="button" value="read" /> -->
-                   <input id="debug-button" type="button" value="提交数据（测试用）" onclick="sendData()" />
-                </td></tr>
-        </table>
-        <div id="tomoe-msg"></div>
-        <div id="debug"></div>
+        <div id="page" data-role="page">
+            <input id="result-text" type=text size=40 />
+            <div id="main-table" class="ui-grid-a">
+                <div id="background" class="ui-block-a"><canvas id="writing-canvas" width="300" height="300"></canvas></div>
+                 <div id="result-area" class="ui-block-b"></div>
+            </div>
+
+            <div id="button-area" data-role="controlgroup" data-type="horizontal">
+                <input id="undo-button" type="button"  data-inline="true" data-icon="back" value="撤销" />
+                <input id="clear-button" type="button"  data-inline="true" data-icon="delete" value="清除" />
+            </div>
+            <div id="msg-area">此区域用于显示信息。</div>
+            <div id="debug-area">此区域用于调试，平时并不显示出来。</div>
+        </div>
     </body>
 </html>

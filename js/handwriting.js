@@ -480,7 +480,7 @@ function CheckSubmitPool()
         (tool.needSubmit == true)
         && (tool.isWaiting == false)
         && (tool.isWriting == false)
-        )
+    )
         {
         //准备提交
         writing.ReadyToSendWriting();

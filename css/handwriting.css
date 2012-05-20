@@ -7,9 +7,20 @@
 */
 
 #page{
-    width: 470px;
+    width: 480px;
     margin-left: auto;
     margin-right: auto;
+    position: static;
+}
+
+#main-table {
+    width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#main-table div{
+    vertical-align: top;
 }
 
 #background{
@@ -20,24 +31,20 @@
     border-color: #888;
     background-color: aliceblue;
     border-collapse: collapse;
+    cursor: default;
 }
 
-#main-table {
-    margin-left: auto;
-    margin-right: auto;
-    border-width: 0px;
-}
-
-#main-table td{
-    vertical-align: top;
+#writing-canvas{
+    float: left;
+    width: 300px;
+    height: 300px;
+    cursor: default;
 }
 
 #result-area {
-    display: block;
     float: right;
     width: 140px;
     height: 290px;
-    margin-left: 2px;
     padding: 5px;
     background-color: seashell;
     border-collapse: collapse;
@@ -53,4 +60,10 @@
     margin: 0;
     padding: 0;
     list-style-type: none;
+}
+
+#button-area{
+    width: 204px;
+    margin-left: auto;
+    margin-right: auto;
 }
