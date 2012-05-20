@@ -17,9 +17,9 @@
     </head>
     <body>
         <div id="page" data-role="page">
-            <div data-role="fieldcontain">
+            <div id="search-area">
                 <input id="result-text" type="text" placeholder="选中的汉字会在此处显示。" />
-                <input id="search-button" type="button"  data-inline="true" data-icon="search" value="搜索" />
+                <input id="search-button" type="button"  data-inline="true" data-mini="true" data-icon="search" value="搜索" />
             </div>
 
             <div id="main-table" class="ui-grid-a">
@@ -28,8 +28,8 @@
             </div>
 
             <div id="button-area" data-role="controlgroup" data-type="horizontal">
-                <input id="undo-button" type="button"  data-inline="true" data-icon="back" value="撤销" />
-                <input id="clear-button" type="button"  data-inline="true" data-icon="delete" value="清除" />
+                <input id="undo-button" type="button"   data-icon="back" value="撤销" />
+                <input id="clear-button" type="button"  data-icon="delete" value="清除" />
             </div>
             <div id="msg-area">此区域用于显示信息。</div>
             <div id="debug-area">此区域用于调试，平时并不显示出来。</div>
