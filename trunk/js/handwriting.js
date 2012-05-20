@@ -23,7 +23,7 @@ var Character = function (strokes)
     this.left = 0;
     this.top = 0;
 
-    if (typeof(s) !== "undefined")
+    if (typeof(strokes) !== "undefined")
     {
         this.s = this.s.concat(strokes);
     }
@@ -56,6 +56,7 @@ var Character = function (strokes)
             }
         }
     };
+
     //清除
     this.Clear = function()
     {
@@ -93,7 +94,7 @@ var Character = function (strokes)
     };
 
     //缩放
-    this.Resize = function( targetWidth, targetHeight)
+    this.Resize = function( targetWidth, targetHeight )
     {
         var sourceWidth = (this.width == 0) ? 1 : this.width;
         var sourceHeight = (this.height == 0) ? 1 : this.height;
@@ -149,29 +150,31 @@ var Character = function (strokes)
             result.ShowMsg('正在提交数据…');
 
             //提交数据
-            $.post('php/handwriting.php',
-            {
-                type: TYPE_RECOGNIZE,
-                c: $.toJSON(this)
-            },
-            function (data)
-            {
-                try
+            $.post
+            (
+                'php/handwriting.php',
                 {
-                    //转换成对象
-                    var obj = $.parseJSON( data );
-                    //空闲状态
-                    tool.isWaiting = false;
-                    //显示候选字
-                    result.ShowCandidate(obj);
-                }
-                catch (err)
+                    type: TYPE_RECOGNIZE,
+                    c: $.toJSON(self)
+                },
+                function (data)
                 {
-                    //显示错误文字
-                    result.ShowMsg(data);
+                    try
+                    {
+                        //转换成对象
+                        var obj = $.parseJSON( data );
+                        //空闲状态
+                        tool.isWaiting = false;
+                        //显示候选字
+                        result.ShowCandidate(obj);
+                    }
+                    catch (err)
+                    {
+                        //显示错误文字
+                        result.ShowMsg(data);
+                    }
                 }
-            });
-
+            );
         }
     };
 }
