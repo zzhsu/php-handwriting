@@ -17,10 +17,14 @@
     </head>
     <body>
         <div id="page" data-role="page">
-            <input id="result-text" type="text" placeholder="选中的汉字会在此处显示。" />
+            <div data-role="fieldcontain">
+                <input id="result-text" type="text" placeholder="选中的汉字会在此处显示。" />
+                <input id="search-button" type="button"  data-inline="true" data-icon="search" value="搜索" />
+            </div>
+
             <div id="main-table" class="ui-grid-a">
                 <div id="background" class="ui-block-a"><canvas id="writing-canvas" width="300" height="300"></canvas></div>
-                 <div id="result-area" class="ui-block-b"></div>
+                <div id="result-area" class="ui-block-b"></div>
             </div>
 
             <div id="button-area" data-role="controlgroup" data-type="horizontal">
