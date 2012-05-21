@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>在线手写输入法-学习</title>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=480">
+        <link rel="stylesheet" href="css/jquery.mobile.css" />
+        <link rel="stylesheet" href ="css/handwriting.css"/>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.json.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile.js"></script>
+        <script type="text/javascript" src="js/handwriting.js"></script>
+        <script type="text/javascript">
+
+        </script>
+    </head>
+    <body>
+        <div id="page" data-role="page">
+            <div id="train-area">
+                <select id="trainType-select" name="trainType">
+                    <option value="1">Unicode汉字（直接在文本框输入）</option>
+                    <option value="2">异体字（在文本框中输入正字）</option>
+                    <option value="3">汉典内部编码（输入编码）</option>
+                    <option value="4">Unicode代码区域</option>
+                    <option value="5">随机获取</option>
+                </select>
+                请输入<input id="char-text" type="text" size=4 />
+                <input id="unicode-from" style="display: none;" type="text" size="6">
+                <label id="unicode-label" style="display: none;">～</label>
+                <input id="unicode-to" style="display: none;" type="text" size="6">
+                <input id="getChars-button" type="button" value="获取汉字">
+                <label><input id="showImg-checkbox" type="checkbox" name="showImg" checked />加载图片</label>
+
+                <input id="imgSrc" type="hidden" />
+                <input id="charId" type="hidden" />
+
+            </div>
+
+            <div id="main-table" class="ui-grid-a">
+                <div id="background" class="ui-block-a">
+                    <canvas id="writing-canvas" width="300" height="300"></canvas>
+                </div>
+                <div id="train-button-area" class="ui-block-b" data-role="controlgroup" >
+                    <input id="tomoe-undo-button" type="button" data-icon="back" value="撤销" />
+                    <input id="clear-button" type="button" data-icon="delete" value="清除" />
+                    <input id="tomoe-learn-button" type="button" data-icon="grid" value="学习"/>
+                </div>
+            </div>
+
+            <div id="train-chars">此区域显示候选字。</div>
+            <div id="msg-area">此区域用于显示信息。</div>
+            <div id="debug-area">此区域用于调试，平时并不显示出来。</div>
+        </div>
+    </body>
+</html>
