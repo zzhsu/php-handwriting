@@ -12,7 +12,8 @@
         <script type="text/javascript" src="js/jquery.mobile.js"></script>
         <script type="text/javascript" src="js/handwriting.js"></script>
         <script type="text/javascript">
-
+            //设置状态为学习模式
+            mode = TYPE_LEARN;
         </script>
     </head>
     <body>
@@ -42,9 +43,9 @@
                     <canvas id="writing-canvas" width="300" height="300"></canvas>
                 </div>
                 <div id="train-button-area" class="ui-block-b" data-role="controlgroup" >
-                    <input id="tomoe-undo-button" type="button" data-icon="back" value="撤销" />
+                    <input id="undo-button" type="button" data-icon="back" value="撤销" />
                     <input id="clear-button" type="button" data-icon="delete" value="清除" />
-                    <input id="tomoe-learn-button" type="button" data-icon="grid" value="学习"/>
+                    <input id="learn-button" type="button" data-icon="grid" value="学习"/>
                 </div>
             </div>
 

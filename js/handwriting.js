@@ -8,6 +8,7 @@ var TRAINTYPE_UNICODE = 4;
 var TRAINTYPE_RANDOM = 5;
 var MSG_OK = 1;
 var canvas, context, tool, canvasOffset;
+var mode = TYPE_RECOGNIZE;
 var writing; //笔迹对象
 var result; //结果对象
 var intervalProcess = null; //定时对象
@@ -49,7 +50,7 @@ var Character = function (strokes)
         {
             this.s.pop();
             //识别模式
-            if(tool.mode == TYPE_RECOGNIZE)
+            if(mode == TYPE_RECOGNIZE)
             {
                 //准备提交笔迹
                 this.ReadyToSendWriting();
@@ -226,8 +227,6 @@ var Pencil = function ()
     this.needSubmit = false;
     //是否正在等待结果
     this.isWaiting = false;
-    //识别模式
-    this.mode = TYPE_RECOGNIZE
 
     //mousedown事件
     this.vmousedown = function (ev)
@@ -273,7 +272,7 @@ var Pencil = function ()
             //计算位置
             writing.MakePosition();
             //识别模式
-            if(self.mode == TYPE_RECOGNIZE)
+            if(mode == TYPE_RECOGNIZE)
             {
                 //准备提交笔迹
                 writing.ReadyToSendWriting();
@@ -293,7 +292,7 @@ var Pencil = function ()
             //计算位置
             writing.MakePosition();
             //识别模式
-            if(self.mode == TYPE_RECOGNIZE)
+            if(mode == TYPE_RECOGNIZE)
             {
                 //准备提交笔迹
                 writing.ReadyToSendWriting();
@@ -404,10 +403,8 @@ var Result = function()
 }
 //end 类声明
 
-
-
 //入口函数
-function xcanvas()
+function InitCanvas()
 {
     try
     {
@@ -509,7 +506,7 @@ $(document).ready(function()
         $.mobile.metaViewportContent = 'width=480';
     });
     //尝试初始化
-    xcanvas();
+    InitCanvas();
     //初始化失败，浏览器不支持Canvas
     if (!context)
     {
@@ -525,7 +522,7 @@ $(document).ready(function()
                 {
                     uu.canvas.init();
                     //再次尝试初始化
-                    xcanvas();
+                    InitCanvas();
                 }
             };
         }
@@ -535,7 +532,7 @@ $(document).ready(function()
             {
                 uu.canvas.init();
                 //再次尝试初始化
-                xcanvas();
+                InitCanvas();
             };
         }
         js.setAttribute('src', 'js/uuCanvas.js');
