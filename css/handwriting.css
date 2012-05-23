@@ -77,6 +77,29 @@
     margin-right: auto;
 }
 
+/* train.htm */
+
+#char-area {
+    
+}
+
+#unicode-area {
+    display: none;
+}
+
+#unicode-area input {
+    float: left;
+    width: 35%;
+}
+
+#unicode-area label {
+    float: left;
+}
+
+#get-chars-button-area {
+    display: block;
+}
+
 #train-button-area {
     float: right;
     width: 140px;
