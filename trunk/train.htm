@@ -26,13 +26,21 @@
                     <option value="4">Unicode代码区域</option>
                     <option value="5">随机获取</option>
                 </select>
-                请输入<input id="char-text" type="text" size=4 />
-                <input id="unicode-from" style="display: none;" type="text" size="6">
-                <label id="unicode-label" style="display: none;">～</label>
-                <input id="unicode-to" style="display: none;" type="text" size="6">
-                <input id="getChars-button" type="button" value="获取汉字">
-                <label><input id="showImg-checkbox" type="checkbox" name="showImg" checked />加载图片</label>
-
+                <div id="char-area" data-role="fieldcontain">
+                    <label for="char-text">请输入：</label>
+                    <input id="char-text" name="char-text" type="text" />
+                </div>
+                <div id="unicode-area" data-role="fieldcontain">
+                    <input id="unicode-from" type="text" />
+                    <label id="unicode-label">～</label>
+                    <input id="unicode-to" type="text" />
+                </div>
+                <div id="get-chars-button-area" data-role="fieldcontain">
+                    <input id="getChars-button" type="button" value="获取汉字" />
+                    <input id="showImg-checkbox"  type="checkbox" name="showImg" checked />
+                    <label for="showImg-checkbox">加载图片</label>
+                </div>
+                
                 <input id="imgSrc" type="hidden" />
                 <input id="charId" type="hidden" />
 
