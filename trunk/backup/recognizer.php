@@ -25,7 +25,7 @@ class Recognizer
 
         foreach ($cands as $c)
         {
-            $res = new TomoeResult();
+            $res = new TempResult();
             $res->ch = $c->ch;
             $res->src = $c->src;
             $res->img = $c->img;

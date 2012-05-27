@@ -17,6 +17,7 @@ class Recognizer
     function get_results(&$cands, &$feature)
     {
         $results = array();
+        $rets = array();
         $res = null;
         $dict_feature = null;
 
@@ -27,7 +28,7 @@ class Recognizer
 
         foreach ($cands as $c)
         {
-            $res = new TomoeResult();
+            $res = new TempResult();
             $res->id = $c->id;
             $res->ch = $c->ch;
             $res->img = $c->img;
@@ -38,7 +39,18 @@ class Recognizer
         }
         //var_dump(json_decode($cands[0]->feature, true));
         usort($results, 'recognizer_node_cmp');
-        return array_slice($results, 0, CANDS_NO);
+        //截取前CANS_NO个结果
+        $results = array_slice($results, 0, CANDS_NO);
+        foreach ($results as $r)
+        {
+            $res = new CharResult();
+            $res->id = $r->id;
+            $res->ch = $r->ch;
+            $res->img = $r->img;
+            $res->src = $r->src;
+            array_push($rets, $res);
+        }
+        return $rets;
     }
 
     //计算得分
@@ -55,7 +67,7 @@ class Recognizer
         $dict_fs_size = sizeof($dict_fs);
         $dif = 0;
         $dis=0;
-        
+
         foreach ($features as $f)
         {
             //字典中独有的特征，不计分

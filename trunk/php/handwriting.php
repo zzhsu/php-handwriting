@@ -63,7 +63,7 @@ function main()
         }
     }
 
-echo json_encode($ret);    
+echo json_encode($ret);
 }
 
 //识别
@@ -94,9 +94,17 @@ $debug_start = microtime(true);
 $debug_end = microtime(true);
 $ret->debug .="匹配候选字所需的时间：".debug_time($debug_start,$debug_end)."<br>";
 
-        $ret->msgno = MSG_OK;
-        $ret->msg = MSG_OK_TXT;
-        $ret->res = $res;
+        if ($res != null)
+        {
+            $ret->msgno = MSG_OK;
+            $ret->msg = MSG_OK_TXT;
+            $ret->res = $res;
+        }
+        else
+        {
+            $ret->msgno = MSG_ERR;
+            $ret->msg = MSG_ERR_NOCAND;
+        }
     }
     catch(Exception $e)
     {
@@ -157,7 +165,7 @@ function learn(&$ret, &$writing, $char_id, $user_id)
         $int_strokes = sizeof($w->s);           //笔画数
 
         $dic->update_character($char_id, json_encode($t->train_features), $int_strokes, $first_stroke_type);
-        
+
         $ret->msgno = MSG_OK;
         $ret->msg = MSG_OK_LEARN;
     }
