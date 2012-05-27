@@ -35,15 +35,15 @@
                     <label id="unicode-label">～</label>
                     <input id="unicode-to" type="text" />
                 </div>
-                <div id="get-chars-button-area" data-role="fieldcontain">
-                    <input id="getChars-button" type="button" value="获取汉字" />
+                <div id="get-chars-button-area" data-role="controlgroup" data-type="horizontal" >
                     <input id="showImg-checkbox"  type="checkbox" name="showImg" checked />
                     <label for="showImg-checkbox">加载图片</label>
+                    <input id="getChars-button" type="button" value="获取汉字" />
                 </div>
-                
-                <input id="imgSrc" type="hidden" />
-                <input id="charId" type="hidden" />
-
+                <div>
+                    <input id="imgSrc" type="hidden" />
+                    <input id="charId" type="hidden" />
+                </div>
             </div>
 
             <div id="main-table" class="ui-grid-a">

@@ -80,7 +80,7 @@
 /* train.htm */
 
 #char-area {
-    
+
 }
 
 #unicode-area {
@@ -97,7 +97,9 @@
 }
 
 #get-chars-button-area {
-    display: block;
+    width: 250px;
+margin-left: auto;
+    margin-right: auto;
 }
 
 #train-button-area {
