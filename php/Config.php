@@ -5,7 +5,7 @@ define('DB_HOST',                   'localhost');   //主机名
 define('DB_USERNAME',               'root');        //数据库用户名
 define('DB_PASSWORD',               '');            //数据库密码
 define('DB_DB',                     'hdwg');        //数据库名
-define('DB_CHARSET',                'latin1');      //字符集（若要显示扩展汉字，请勿修改此项）
+define('DB_CHARSET',                'utf8');		//字符集（utf8或latin1）
 
 //笔迹识别用
 define('TOMOE_WRITING_WIDTH',       1000);                          //字符宽度
