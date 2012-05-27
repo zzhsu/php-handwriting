@@ -94,14 +94,24 @@ class TomoeTrainFeature
 //返回结果类
 class TomoeReturn
 {
-    var $res;                   //TomoeResult的集合
+    var $res;                   //CharResult的集合
     var $msgno = -1;            //提示信息代号
     var $msg = '';              //提示信息内容
     var $debug = '';
 }
 
-//返回的结果类
-class TomoeResult
+//返回结果（没有分数）
+class CharResult
+{
+    var $id = -1;
+    var $ch = '';
+    var $img = '';
+    var $src = '';
+    var $showImg = false;
+}
+
+//临时结果结果
+class TempResult
 {
     var $id = -1;
     var $ch = '';
